@@ -20,10 +20,26 @@ The web pages read Firebase directly. They do not load local CSV or generated JS
 `python refresh.py` reads the existing warranty publications and publishes small, validated,
 immutable summaries under `issueSubcategoryAnalysis/v1/c4cTickets_test/pdvDashboard` in the existing Firebase database.
 It does not fetch SAP/C4C or invoke AI. `python install_daily_hook.py`
-adds one step to the sibling warranty project's existing `run_daily_5pm_mandt800_rejection_filter.bat`.
+installs the updater into `warranty/pdv_dashboard/` and adds or upgrades one step in the
+existing `run_daily_5pm_mandt800_rejection_filter.bat`. The daily batch calls
+`%~dp0run_pdv_dashboard_update.bat`, which finds scripts, credentials and category definitions
+relative to that Warranty folder. No username, drive letter, current working directory or
+sibling ozz-dashboard folder is required on the Planning computer. It runs in `--publish-only`
+mode, so Planning does not need the standalone website files or browser server.
 The step runs only after the existing refresh and publication verification succeed.
 A failure returns nonzero and retains the previous Firebase startup snapshot. No separate schedule is created.
 The existing daily log records the result.
+
+`run_pdv_dashboard_update.bat --check` verifies local paths and Python dependencies without
+network access or publishing. Missing files fail explicitly in the daily log. This check does
+not validate Firebase credentials, network connectivity or the Planning scheduled task.
+The installer preserves a backup of the old daily batch under `pdv_dashboard/backups/` and
+can be run repeatedly without adding duplicate hooks. Copy the updated Warranty folder
+to Planning, or use `dist/pdv-planning-update.zip`: extract its `pdv_update_install` folder
+inside Planning's existing Warranty folder and run `install_on_planning.cmd` once.
+The installer patches Planning's own batch instead of replacing its other update steps.
+`python build_planning_package.py` rebuilds that package from the current updater files;
+no credentials, source data, cache or website assets are included.
 
 The overview and Top 10 include only approved Claims and their Issues, grouped by Claim Created On.
 The overview has L2 / L3 buttons in the centre of the shared header. Each desktop view fills

@@ -126,7 +126,33 @@ def assemble_pages(warranty):
 }'''+page[end:]
         atomic(PUBLIC/name, pdv_page(page).encode('utf-8'))
 
-def refresh(warranty):
+def resolve_warranty_root(explicit=None):
+    # Resolve from the script location, never the scheduled task's working directory.
+    if explicit is not None:
+        return Path(explicit).expanduser().resolve()
+    for candidate in (ROOT.parent, ROOT.parent/'warranty'):
+        if (candidate/'run_daily_5pm_mandt800_rejection_filter.bat').is_file():
+            return candidate.resolve()
+    raise ValueError('Warranty folder not found beside this script. Use --warranty-root PATH.')
+
+def check_environment(warranty, publish_only=False):
+    required=['firebase-service-account.json','issue_subcategories.json']
+    if not publish_only:
+        required += ['browser-page-cache.js','claim-trend-ticket-metrics.js','claim-overview.css',
+                     'flow-polish.css','sidebar-light.css','dashboard-theme.css','parts-export.js',
+                     'infieldpredelivery.html']
+    missing=[str(warranty/name) for name in required if not (warranty/name).is_file()]
+    if missing:
+        raise ValueError('Missing Warranty files: '+ '; '.join(missing))
+    import firebase_admin
+    categories=json.loads((warranty/'issue_subcategories.json').read_text(encoding='utf-8'))
+    if not isinstance(categories.get('categories'),dict):
+        raise ValueError('Invalid issue_subcategories.json: categories must be an object')
+    print('PDV Warranty folder: '+str(warranty),flush=True)
+    print('PDV updater folder: '+str(ROOT),flush=True)
+
+def refresh(warranty, publish_only=False):
+    check_environment(warranty,publish_only)
     print('Reading published warranty generations...', flush=True)
     startup = read(ISSUE+'/startup')
     issue = json.loads(startup['data'])
@@ -202,7 +228,8 @@ def refresh(warranty):
     overview['claimSourceVersion']=claim['sourceVersion']
     content = encode(overview)
     generation = hashlib.sha256(content).hexdigest()[:20]
-    assemble_pages(warranty)
+    if not publish_only:
+        assemble_pages(warranty)
     publish_dashboard(warranty,overview,details,claim,generation,issue['sourceVersion'],claim_details)
     print(f'PASS: {len(content):,} byte overview; complete generation {generation}',flush=True)
 
@@ -236,6 +263,16 @@ def publish_dashboard(warranty,overview,details,claim,generation,source_version,
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--warranty-root',type=Path,default=ROOT.parent/'warranty')
+    parser.add_argument('--warranty-root',type=Path)
+    parser.add_argument('--publish-only',action='store_true',help='Update Firebase data without rebuilding local website files')
+    parser.add_argument('--check',action='store_true',help='Check local paths and Python dependencies without network or data updates')
     args=parser.parse_args()
-    refresh(args.warranty_root.resolve())
+    try:
+        warranty=resolve_warranty_root(args.warranty_root)
+        if args.check:
+            check_environment(warranty,args.publish_only)
+            print('PASS: PDV local paths and dependencies; no Firebase connection tested')
+        else:
+            refresh(warranty,args.publish_only)
+    except Exception as exc:
+        parser.exit(1,'ERROR: PDV update failed: '+str(exc)+'\n')
