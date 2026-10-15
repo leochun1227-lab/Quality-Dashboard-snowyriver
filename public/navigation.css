@@ -1,0 +1,54 @@
+/* Shared left navigation, matching the Warranty workspace. */
+body.with-site-sidebar{padding-left:202px}
+.site-sidebar{position:fixed;inset:0 auto 0 0;z-index:50;width:202px;padding:12px 10px;background:#f8f9fa;border-right:1px solid #dfe3e8;overflow-y:auto;font-family:Segoe UI,Arial,sans-serif}
+.site-sidebar .site-brand{display:flex;align-items:center;gap:11px;padding:0 6px;margin-bottom:24px;text-decoration:none;color:#16334f}
+.site-brand-mark{display:grid;place-items:center;width:37px;height:37px;flex:none;border-radius:12px;background:#e9edf1;color:#8894a3}
+.site-sidebar svg{width:18px;height:18px;flex:none}
+.site-brand strong{display:block;font-size:16px;line-height:1.3;font-weight:650}
+.site-brand small{display:block;font-size:12px;color:#62748a;margin-top:3px}
+.site-nav-section{margin:0;padding:0 0 20px}
+.site-nav-section+.site-nav-section{border-top:1px solid #e1e5ea;padding-top:23px}
+.site-nav-section h2{margin:0 8px 9px;font-size:12px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;color:#65758a}
+.site-nav-link{display:flex;align-items:center;gap:11px;min-height:62px;padding:12px;background:#fff;border:1px solid #dce2e9;border-radius:2px;color:#214766;text-decoration:none;font-size:14px;line-height:1.4}
+.site-nav-link svg{color:#8b96a7}
+.site-nav-link:hover{background:#f0f4f9;border-color:#bdcbdc}
+.site-nav-link[aria-current=page]{background:#eaf1fc;border-color:#9bbcff;font-weight:600}
+.site-nav-link[aria-current=page] svg{color:#648dff}
+body.with-site-sidebar .site-nav{grid-template-columns:minmax(0,1fr);padding:12px 20px;gap:10px}
+body.with-site-sidebar .site-nav.with-level-switch{grid-template-columns:auto minmax(0,1fr)}
+body.with-site-sidebar .site-nav .site-controls{justify-content:flex-start}
+body.with-site-sidebar .site-nav .head-right{margin-left:auto}
+body.with-site-sidebar .site-nav .level-switch{justify-self:start}
+body.with-site-sidebar .site-nav .site-controls h1{white-space:normal}
+body.with-site-sidebar .overview-main{min-width:0}
+body.overview-page.with-site-sidebar>.overview-main{height:auto;min-height:calc(100dvh - var(--site-header-height,54px));flex-shrink:0}
+/* Restore the historical trend layout without the cutoff-only Issue summary. */
+.historical-trend-page .dashboardGrid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+@layer claimOverview{
+  .historical-trend-page #amountPendingNote:not([hidden]){display:block!important}
+  .historical-trend-page :is(#approvedTotalsAll,#amountTotalsAll){flex-wrap:wrap;row-gap:6px}
+  .historical-trend-page .main{display:block!important;height:auto!important;min-height:calc(100dvh - var(--site-header-height,90px));padding:18px 20px 32px!important}
+  .historical-trend-page .chartWrap,.historical-trend-page .chartWrapTall{height:260px!important;min-height:260px;flex:none}
+  .historical-trend-page .panelHead{min-height:32px!important}
+  .historical-trend-page .panelTitleWrap{flex-direction:row!important;align-items:center!important}
+  .historical-trend-page .site-nav .toolbar{width:100%}
+  .historical-trend-page .site-nav .controls,.historical-trend-page .site-nav .controlsGroup{flex-wrap:wrap!important}
+  .historical-trend-page .site-nav .modeCluster{margin-left:auto!important;flex-wrap:wrap!important;flex-shrink:1}
+}
+@media(max-width:1000px){
+  body.with-site-sidebar{padding-left:180px}
+  .site-sidebar{width:180px}
+  .site-brand strong{font-size:15px}
+  .site-nav-link{font-size:13px}
+  body.with-site-sidebar .site-nav.with-level-switch{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  body.with-site-sidebar{padding-left:0}
+  .site-sidebar{position:relative;width:100%;display:flex;flex-wrap:wrap;gap:8px;padding:12px;border-right:0;border-bottom:1px solid #dfe3e8}
+  .site-sidebar .site-brand{width:100%;margin-bottom:4px}
+  .site-nav-section,.site-nav-section+.site-nav-section{flex:1;min-width:90px;padding:0;border:0}
+  .site-nav-section h2{font-size:10px;margin:4px 0}
+  .site-nav-link{padding:8px;gap:6px;min-height:64px;font-size:12px}
+  body.with-site-sidebar .site-nav{padding:12px}
+  body.with-site-sidebar .site-nav .site-controls h1{flex-basis:100%}
+}

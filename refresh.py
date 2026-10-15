@@ -116,14 +116,6 @@ def assemble_pages(warranty):
         page = (warranty/name).read_text(encoding='utf-8')
         page = re.sub(r'<aside class="sidebar">[\s\S]*?</aside>', '', page, count=1)
         page = page.replace('</head>', '<link rel="stylesheet" href="site.css"><script src="navigation.js" defer></script></head>')
-        page = page.replace('fetchClaimStartup("outputs/claim_trend_startup.json")',
-                            'fetchClaimStartup("'+DB+'/'+SITE+'/claimTrendStartup.json")')
-        start = page.index('async function readClaimStartupVersion(){')
-        end = page.index('\nfunction validClaimStartup',start)
-        page = page[:start]+'''async function readClaimStartupVersion(){
-  try { return await readJson("'''+SITE+'''/claimTrendStartup/sourceVersion",4000); }
-  catch { return ""; }
-}'''+page[end:]
         atomic(PUBLIC/name, pdv_page(page).encode('utf-8'))
 
 def resolve_warranty_root(explicit=None):

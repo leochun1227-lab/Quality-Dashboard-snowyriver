@@ -31,7 +31,7 @@
       metric('Approved Claims',num(sum('approvedClaims')),'Created On'),
       metric('Approved Issues / Defects',num(sum('approvedIssues')),'Issues in Approved Claims',data.approvedIssueBasis),
       metric('Issues per Claim',sum('approvedClaims')?(sum('approvedIssues')/sum('approvedClaims')).toFixed(2):'—','Approved Claims'),
-      metric('Produced · 60 days','—','Production source not connected','Green SAP production dates have not been connected to this dashboard.'));
+      metric('green SAP 60days','—','Production source not connected','Green SAP production dates have not been connected to this dashboard.'));
     $('status').textContent=unknown?`${num(unknown)} Claims have no approval status in Firebase and are excluded.`:'';
     const groups=scopeGroups(),denom=groups.reduce((n,r)=>n+r[5],0);
     classification(groups,denom);

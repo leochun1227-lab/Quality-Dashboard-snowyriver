@@ -3,18 +3,20 @@
 Standalone local website: `http://127.0.0.1:8876/`.
 
 Run `./start-dashboard.ps1` to start the hidden loopback server. Website files are in `public/`.
-The three navigation buttons open Pre Delivery Overview, the existing Claim Trend Overview,
+The shared left sidebar groups the three navigation buttons and opens Pre Delivery Overview, the existing Claim Trend Overview,
 and the approved Pre Delivery Top 10 page.
 
 ## Data and updates
 
-All three pages and exports use the inclusive cutoff `Created On >= 2026-09-09`.
+Pre Delivery Overview and Top10 Failure Parts (including their exports) use the inclusive cutoff `Created On >= 2026-09-09`.
+Claim Trend Overview alone uses the original Warranty historical data from January 2025,
+with This Year, Last 12 Months, All Time, custom month ranges and Year Compare.
+Its charts and exports remain Pre Delivery only and have no 9 September creation-date cutoff.
 `pdv_scope.py` owns the fixed date; September contains only the 9th onward.
 The publisher builds the Claim cohort from Firebase currentStatus, joins Issue records by
 Ticket ID, and filters approved amount records to the same cohort before aggregation.
 Approval-date grouping remains available within that cohort; it never brings in older-created Claims.
-Overview and Claim Trend approved counts are reconciled before publication. Immutable Claim
-and amount detail payloads power exports without fetching historical tickets into the browser.
+Overview and the scoped PDV Claim snapshot are reconciled before publication; the historical Claim Trend page reads the original Warranty snapshot instead. The scoped PDV publication retains immutable Claim and amount details. Historical Claim Trend loads Warranty ticket and amount details on demand for date-basis changes and exports.
 
 The web pages read Firebase directly. They do not load local CSV or generated JSON files.
 `python refresh.py` reads the existing warranty publications and publishes small, validated,
@@ -42,8 +44,8 @@ The installer patches Planning's own batch instead of replacing its other update
 no credentials, source data, cache or website assets are included.
 
 The overview and Top 10 include only approved Claims and their Issues, grouped by Claim Created On.
-The overview has L2 / L3 buttons in the centre of the shared header. Each desktop view fills
-the space below the summary without page or card scrolling. L2 presents every populated
+The overview has L2 / L3 buttons in the shared header beside the left sidebar.
+Cards remain expanded; the page can scroll vertically when the available space is too small. L2 presents every populated
 Level 1 System with its Level 2 Components in aligned grid rows. L3 presents seven detailed
 reference cards from the supplied QMS-WAR-003 Version 03 guide. Definitions, identification clues, examples and exclusions are static reference
 text in classification-guide.js; counts and percentages come from Firebase. Other source labels
@@ -69,15 +71,22 @@ Count buttons open optional Claim details; all three classification totals use t
 Approval uses Firebase currentStatus: the existing Warranty statuses plus a nonblank Claim Approved On.
 Missing status records are explicitly excluded and counted. The source timestamps are shown under
 Data & definitions. Claim Trend restricts its charts, totals and exports
-to Pre Delivery. Its monthly Approved charts reuse the overview's Firebase
-summary and follow the period/year controls. Existing trend metrics retain their date-basis controls.
-All three pages place their title, filters and actions in the top navigation's right-hand area.
-Claim Trend uses Tickets / Issues instead of year comparison. Tickets shows monthly approved
-Claims above a single row of Tickets Created, Approved Tickets and Amount Claim charts.
-Issues shows the monthly approved Issue trend and exports the selected period's Issue details.
-Both desktop views adapt to the space below the shared header. Unapproved Tickets is removed from this view
-and its export matching criteria. Smaller screens stack the cards to keep the labels readable.
-`claim_trend_page.py` reapplies this layout whenever the daily update assembles the source page.
+to Pre Delivery. It reads Warranty's historical Firebase claim summary and retains its date-basis controls.
+All three pages place their title, filters and actions above the content, beside the shared left sidebar.
+Claim Trend restores the Warranty Trend / Year Compare controls, with Approved On / Created On grouping.
+Approved Tickets and Amount Claim default to Created On. Approved amounts are loaded and regrouped
+by their original creation month before rendering; missing/loading amounts are not displayed as zero.
+Both charts include current Pending Pre Delivery Claims by Created On (purple dashed lines).
+Pending excludes approved, resolved, closed, rejected and cancelled tickets; this is the current
+open population grouped by creation month, not historical month-end backlog. Pending quotes use
+the same Claim Amount fields and status rules as Warranty, and identify missing quotes separately
+from real zero values. Approved amounts retain their SAP source. Year Compare shows Pending for
+each year, and Excel exports include a separate Pending Monthly sheet. The page reads the daily
+Warranty currentStatus feed and validates its update version when loading Pending and quotes.
+`claim-trend-pdv.js` adapts the Warranty renderers to the Pre Delivery-only view on page rebuilds.
+Its three charts show Tickets Created, Approved Tickets and Amount Claim. Unapproved Tickets remains excluded.
+The cutoff-only monthly Issue summary is not loaded on this historical page.
+`claim_trend_page.py` preserves this behavior whenever the daily update assembles the source page.
 Level 1 / 2 / 3 use Issue Position / System Subcategory / Subcategory Reason; missing values remain Unclassified.
 Shares use the full approved population, including Other and Unclassified. Top 10 excludes
 Other, Unclassified, Labour and 9997 from the ranking, consistent with the existing page.
@@ -102,3 +111,5 @@ whenever that program runs successfully. No existing task was enabled or resched
 
 `python -m unittest -v test_refresh.py` validates approval rules, distinct Claim counting,
 category totals, unknown approval status, missing categories and duplicate rejection.
+
+`node test_claim_trend.cjs` validates historical month selection, year comparisons and Pre Delivery exports across the old cutoff.
