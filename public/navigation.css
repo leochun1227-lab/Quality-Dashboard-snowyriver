@@ -14,11 +14,13 @@ body.with-site-sidebar{padding-left:202px}
 .site-nav-link:hover{background:#f0f4f9;border-color:#bdcbdc}
 .site-nav-link[aria-current=page]{background:#eaf1fc;border-color:#9bbcff;font-weight:600}
 .site-nav-link[aria-current=page] svg{color:#648dff}
+.site-sidebar .level-switch{display:flex;flex-direction:column;gap:6px;margin:8px 0 0 16px;padding:0 0 0 10px;border:0;border-left:1px solid #dce2e9;border-radius:0;background:transparent}
+.site-sidebar .level-switch button{width:100%;min-height:34px;padding:8px;text-align:left;font-size:12px;line-height:1.4;white-space:normal;border:1px solid #dce2e9;border-radius:4px;background:#fff}
+.site-sidebar .level-switch button:hover{border-color:#9bbcff}
+.site-sidebar .level-switch button:focus-visible{outline:2px solid #648dff;outline-offset:2px}
 body.with-site-sidebar .site-nav{grid-template-columns:minmax(0,1fr);padding:12px 20px;gap:10px}
-body.with-site-sidebar .site-nav.with-level-switch{grid-template-columns:auto minmax(0,1fr)}
 body.with-site-sidebar .site-nav .site-controls{justify-content:flex-start}
 body.with-site-sidebar .site-nav .head-right{margin-left:auto}
-body.with-site-sidebar .site-nav .level-switch{justify-self:start}
 body.with-site-sidebar .site-nav .site-controls h1{white-space:normal}
 body.with-site-sidebar .overview-main{min-width:0}
 body.overview-page.with-site-sidebar>.overview-main{height:auto;min-height:calc(100dvh - var(--site-header-height,54px));flex-shrink:0}
@@ -40,7 +42,6 @@ body.overview-page.with-site-sidebar>.overview-main{height:auto;min-height:calc(
   .site-sidebar{width:180px}
   .site-brand strong{font-size:15px}
   .site-nav-link{font-size:13px}
-  body.with-site-sidebar .site-nav.with-level-switch{grid-template-columns:1fr}
 }
 @media(max-width:700px){
   body.with-site-sidebar{padding-left:0}
@@ -49,6 +50,7 @@ body.overview-page.with-site-sidebar>.overview-main{height:auto;min-height:calc(
   .site-nav-section,.site-nav-section+.site-nav-section{flex:1;min-width:90px;padding:0;border:0}
   .site-nav-section h2{font-size:10px;margin:4px 0}
   .site-nav-link{padding:8px;gap:6px;min-height:64px;font-size:12px}
+  .site-sidebar .level-switch{margin-left:0;padding-left:0;border-left:0}
   body.with-site-sidebar .site-nav{padding:12px}
   body.with-site-sidebar .site-nav .site-controls h1{flex-basis:100%}
 }

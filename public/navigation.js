@@ -10,16 +10,17 @@
     ['Tickets','infieldpredelivery.html','Claim Trend Overview','<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h10M7 13h7"/>'],
     ['Analysis','parts.html','Top10 Failure Parts','<path d="M4 7h16M7 7v10m10-10v10M5 17h14M9 11h6"/>']
   ];
+  const levels=document.getElementById('level-switch');
   for(const [group,url,title,paths] of pages){
     const section=document.createElement('section');section.className='site-nav-section';
     const heading=document.createElement('h2');heading.textContent=group;section.append(heading);
     const a=document.createElement('a');a.href=url;a.className='site-nav-link';a.innerHTML=icon(paths);
     const label=document.createElement('span');label.textContent=title;a.append(label);
-    if(current===url)a.setAttribute('aria-current','page');section.append(a);links.append(section);
+    if(current===url)a.setAttribute('aria-current','page');section.append(a);
+    if(url==='index.html'&&levels)section.append(levels);
+    links.append(section);
   }
   const controls=document.querySelector('.overview-head,.toolbar');
-  const levels=document.getElementById('level-switch');
-  if(levels){nav.classList.add('with-level-switch');nav.append(levels);}
   if(controls){controls.classList.add('site-controls');nav.append(controls);}
   if(controls&&current!=='infieldpredelivery.html'){const scope=document.createElement('span');scope.className='pdv-date-scope';scope.textContent='Created On ≥ 9 Sep 2026';scope.title='This page and its exports include Claims created on or after 9 September 2026 (inclusive). September starts on the 9th.';controls.prepend(scope);}
   document.body.classList.add('with-site-sidebar');
