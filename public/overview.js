@@ -23,15 +23,15 @@
     'Unclassified':'slate','Water System':'teal','Compliance':'violet'};
   const selectedMonths=()=>data.monthly.filter(r=>r.month.startsWith($('year').value+'-')&&($('month').value==='all'||r.month===$('month').value));
   const scopeGroups=()=>{const months=new Set(selectedMonths().map(r=>r.month));return data.groups.filter(r=>months.has(r[0])&&(approved==='all'||r[4]===1));};
-  function metric(title,value,note,help){const card=el('div','metric');card.append(el('div','metric-title',title),el('strong','metric-value',value),el('span','metric-note',note));if(help)card.title=help;return card;}
+  function metric(title,value,help){const card=el('div','metric');card.append(el('div','metric-title',title),el('strong','metric-value',value));if(help)card.title=help;return card;}
   function render(){
     if(!data)return;
     const rows=selectedMonths(),sum=k=>rows.reduce((n,r)=>n+r[k],0),claims=sum('claims'),issues=sum('issues'),unknown=sum('approvalUnknown');
     const metrics=$('metrics');metrics.replaceChildren(
-      metric('Approved Claims',num(sum('approvedClaims')),'Created On'),
-      metric('Approved Issues / Defects',num(sum('approvedIssues')),'Issues in Approved Claims',data.approvedIssueBasis),
-      metric('Issues per Claim',sum('approvedClaims')?(sum('approvedIssues')/sum('approvedClaims')).toFixed(2):'—','Approved Claims'),
-      metric('green SAP 60days','—','Production source not connected','Green SAP production dates have not been connected to this dashboard.'));
+      metric('Approved Claims',num(sum('approvedClaims'))),
+      metric('Approved Issues / Defects',num(sum('approvedIssues')),data.approvedIssueBasis),
+      metric('Issues per Claim',sum('approvedClaims')?(sum('approvedIssues')/sum('approvedClaims')).toFixed(2):'—'),
+      metric('green SAP 60days','—','Green SAP production dates have not been connected to this dashboard.'));
     $('status').textContent=unknown?`${num(unknown)} Claims have no approval status in Firebase and are excluded.`:'';
     const groups=scopeGroups(),denom=groups.reduce((n,r)=>n+r[5],0);
     classification(groups,denom);
@@ -57,10 +57,6 @@
       const title=el('h3','');title.append(el('span','system-rank',String(cards.childElementCount+1).padStart(2,'0')),document.createTextNode(name));
       heading.append(title,countButton(name,count,r=>r[2]===name),el('span','classification-share',pct(count,denom)));
       const list=el('div','component-list');
-      for(let i=0;i<(wide?2:1);i++){
-        const cols=el('div','classification-columns'+(i?' repeated-columns':''));
-        cols.append(el('span','','Component'),el('span','','Issues'),el('span','','%'));list.append(cols);
-      }
       // DOM, visual and keyboard order all follow descending count, including on mobile.
       for(const [component,n] of components){
         const row=el('div','component-row');row.dataset.issues=String(n);

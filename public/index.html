@@ -9,7 +9,7 @@
 <section class="metrics" aria-label="Approved Pre Delivery summary" id="metrics"></section>
 <div class="classification-board">
   <section id="l2-view" class="system-map" aria-labelledby="map-title">
-    <div class="map-heading"><h2 id="map-title"><span class="level-tag">L2</span> Components <small>by Level 1 system</small></h2><span id="category-total" class="muted"></span></div>
+    <div class="map-heading"><h2 id="map-title"><span class="level-tag">L2</span> Components</h2><span id="category-total" class="muted"></span></div>
     <div id="system-cards" class="system-cards"></div>
   </section>
   <section id="l3-view" class="failure-map" hidden aria-labelledby="failure-title">
@@ -18,7 +18,7 @@
     <section class="source-modes"><div class="source-modes-heading"><h3>Other source categories</h3><span id="other-mode-total"></span></div><div class="source-usage-grid"><div><p class="source-usage-note">L3 reasons outside the seven reference modes</p><div id="other-failure-modes"></div></div><div class="position-usage"><h4>L1 usage · Other</h4><div id="position-usage"></div><p class="source-usage-note">Included in total Issues · L1 and L3 overlap; do not add together.</p></div></div></section>
   </section>
 </div>
-<footer class="overview-footer"><span>Approved Issues only · % of all Issues · Select a count for details</span><span id="updated"></span><button id="show-definitions" type="button">Data & definitions</button></footer>
+<footer class="overview-footer"><span id="updated"></span><button id="show-definitions" type="button">Data & definitions</button></footer>
 </div></main>
 <dialog id="definitions"><div class="panel-heading"><h2>Data & definitions</h2><button id="close-definitions" aria-label="Close definitions">✕</button></div><p>Only Approved Claims and their Issues are included, grouped by Claim Created On, from 9 September 2026 inclusive. One Claim may contain multiple Issues.</p><p>Components retain their source System. Percentages use all Approved Issues in the selected period. The seven L3 definitions and examples come from QMS-WAR-003 Version 03 and are classification guidance, not Claim records. Source labels outside those seven categories remain separate without remapping.</p><p id="source-dates"></p><p id="production-note"></p></dialog>
 <dialog id="details"><div class="panel-heading"><h2 id="detail-title">Issue details</h2><button id="close-details" aria-label="Close issue details">✕</button></div><p id="detail-status" role="status"></p><div class="detail-scroll"><table><thead><tr><th>Ticket</th><th>Issue</th><th>System</th><th>Component</th><th>Failure mode</th><th>Approved</th></tr></thead><tbody id="detail-body"></tbody></table></div></dialog>

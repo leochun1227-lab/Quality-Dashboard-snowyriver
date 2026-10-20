@@ -10,8 +10,7 @@ body.overview-page .site-nav.with-level-switch{grid-template-columns:max-content
 .overview-page .metrics{margin:0;gap:10px;flex:none}
 .overview-page .metric{border-color:#d5e0e6;padding:9px 12px;background:#fff}
 .overview-page .metric-title{color:#304e61;font-weight:600}
-.overview-page .metric-note{color:#607585}
-.overview-page .metric-value{color:#163b51;font-size:25px}
+.overview-page .metric-value{color:#163b51;font-size:25px;grid-row:1}
 .overview-page .classification-board{display:block;min-height:0;flex:1}
 .overview-page .system-map,.overview-page .failure-map{display:flex;flex-direction:column;height:100%;min-height:0;padding:0;border:0}
 .overview-page .map-heading{flex:none;margin:0 0 8px;min-height:26px}
