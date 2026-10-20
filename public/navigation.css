@@ -15,9 +15,9 @@ body.with-site-sidebar{padding-left:202px}
 .site-nav-link[aria-current=page]{background:#eaf1fc;border-color:#9bbcff;font-weight:600}
 .site-nav-link[aria-current=page] svg{color:#648dff}
 .site-sidebar .level-switch{display:flex;flex-direction:column;gap:6px;margin:8px 0 0 16px;padding:0 0 0 10px;border:0;border-left:1px solid #dce2e9;border-radius:0;background:transparent}
-.site-sidebar .level-switch button{width:100%;min-height:34px;padding:8px;text-align:left;font-size:12px;line-height:1.4;white-space:normal;border:1px solid #dce2e9;border-radius:4px;background:#fff}
-.site-sidebar .level-switch button:hover{border-color:#9bbcff}
-.site-sidebar .level-switch button:focus-visible{outline:2px solid #648dff;outline-offset:2px}
+.site-sidebar .level-switch :is(button,a){display:block;box-sizing:border-box;width:100%;min-height:34px;padding:8px;text-align:left;font-family:inherit;font-size:12px;line-height:1.4;white-space:normal;border:1px solid #dce2e9;border-radius:4px;background:#fff;color:#435c6c;font-weight:600;text-decoration:none}
+.site-sidebar .level-switch :is(button,a):hover{border-color:#9bbcff}
+.site-sidebar .level-switch :is(button,a):focus-visible{outline:2px solid #648dff;outline-offset:2px}
 body.with-site-sidebar .site-nav{grid-template-columns:minmax(0,1fr);padding:12px 20px;gap:10px}
 body.with-site-sidebar .site-nav .site-controls{justify-content:flex-start}
 body.with-site-sidebar .site-nav .head-right{margin-left:auto}

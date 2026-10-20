@@ -73,12 +73,12 @@ Missing status records are explicitly excluded and counted. The source timestamp
 Data & definitions. Claim Trend restricts its charts, totals and exports
 to Pre Delivery. It reads the published historical daily result and retains its date-basis controls.
 All three pages place their title, filters and actions above the content, beside the shared left sidebar.
-Claim Trend restores the Warranty Trend / Year Compare controls, with Approved On / Created On grouping.
-Approved Tickets and Amount Claim default to Created On. The daily publisher groups approved amounts
-by their original creation month; missing/loading amounts are not displayed as zero.
-Both charts show paired monthly bars: Approved in blue and current Pending Pre Delivery Claims
-by Created On in orange. Year Compare shows an Approved/Pending pair for each year using lighter
-colors for the second year. Tickets Created retains its existing chart.
+Claim Trend retains Trend / Year Compare. Its first two charts are Monthly Claims and Monthly
+Issues / Defects, always grouped by the parent Claim's Created On. Each month has a light blue Total
+bar beside a stacked bar: Approved in dark blue and Pending in orange. Total includes other statuses
+such as rejected/cancelled, so Approved + Pending need not equal Total. Year Compare repeats the
+pair for each year and does not turn future months into zeros. Amount Claim remains third,
+defaults to Created On, and retains its Approved On / Created On controls.
 Pending excludes approved, resolved, closed, rejected and cancelled tickets; this is the current
 open population grouped by creation month, not historical month-end backlog. Pending quotes use
 the same Claim Amount fields and status rules as Warranty, and identify missing quotes separately
@@ -93,8 +93,20 @@ Page visits and date-basis switches never fetch the status feed or recalculate a
 reuse the exact prior published result while checking its small generation key. If a new daily generation
 exists, the page replaces all chart sources together. Offline visits show the saved daily result with a label.
 `claim-trend-pdv.js` adapts the Warranty renderers to the Pre Delivery-only view on page rebuilds.
-Its three charts show Tickets Created, Approved Tickets and Amount Claim. Unapproved Tickets remains excluded.
-The cutoff-only monthly Issue summary is not loaded on this historical page.
+Its three charts show Monthly Claims, Monthly Issues / Defects and Amount Claim.
+The full historical Issue population comes from the complete scan already saved by Planning's
+normal daily job at `%LOCALAPPDATA%/WarrantyIssueAI/state/latest-position-result.json`.
+The updater verifies its scan timestamp and Claim generation against the published sources,
+counts each Ticket/Issue ID once, and reconciles Approved Issues with the immutable approved
+export shards. It includes Claims with no Issues in Claim counts. It never substitutes the
+approved-only Issue feed for Total or Pending Issues. No extra C4C scan or AI call is added.
+If this file is missing or mismatched, the daily update fails and retains the last publication.
+`--issue-results PATH` selects an explicit full daily result. For an intentional preview on a
+machine without Planning's full scan, `--allow-partial-issues` permits publishing known Claim
+counts and Approved Issues while Total/Pending Issues remain null and visibly awaiting update.
+The daily hook does not use this flag. The next successful full daily publication replaces the
+partial result automatically. Excel exports include all six monthly count columns, keeping
+unavailable values distinct from zero.
 `claim_trend_page.py` preserves this behavior whenever the daily update assembles the source page.
 Level 1 / 2 / 3 use Issue Position / System Subcategory / Subcategory Reason; missing values remain Unclassified.
 Shares use the full approved population, including Other and Unclassified. Top 10 excludes

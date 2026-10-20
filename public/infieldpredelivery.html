@@ -340,7 +340,7 @@ body{
     <div class="dashboardGrid">
       <section class="panel" id="newclaim">
         <div class="panelHead">
-          <h2 class="panelTitle"><span class="titleIcon ic-blue"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span>Tickets Created by Month</h2>
+          <h2 class="panelTitle"><span class="titleIcon ic-blue"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span>Monthly Claims</h2>
 
         </div>
         <div class="dualChartGrid">
@@ -359,15 +359,15 @@ body{
       <section class="panel" id="approved">
         <div class="panelHead">
           <div class="panelTitleWrap">
-            <h2 class="panelTitle"><span class="titleIcon ic-green"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.3 12.3l2.5 2.5 4.9-5.6"/></svg></span>Approved Tickets</h2>
-            <div class="approvedDateControls">
+            <h2 class="panelTitle"><span class="titleIcon ic-green"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.3 12.3l2.5 2.5 4.9-5.6"/></svg></span>Monthly Issues / Defects</h2>
+            <div class="approvedDateControls" hidden>
 
               <div class="miniSwitch" role="group" aria-label="Approved tickets date basis">
                 <button id="approvedOnBtn" class="miniBtn" type="button" aria-pressed="false" aria-describedby="approvedDateNote">Approved On</button>
                 <button id="approvedCreatedOnBtn" class="miniBtn active" type="button" aria-pressed="true" aria-describedby="approvedDateNote">Created On</button>
               </div>
             </div>
-            <div id="approvedDateNote" class="approvedDateNote" aria-live="polite"></div>
+            <div id="approvedDateNote" hidden class="approvedDateNote" aria-live="polite"></div>
           </div>
 
           <button id="toggleInFieldPending" type="button" aria-pressed="false" aria-controls="approvedSplitChart" hidden>Show In Field Pending</button>
@@ -383,7 +383,8 @@ body{
           </div>
 
         </div>
-      </section>
+      <p id="issueAvailabilityNote" class="pendingAmountNote" role="status" hidden></p>
+</section>
 
       <section class="panel" id="amount">
         <div class="panelHead">
@@ -1889,6 +1890,7 @@ function drawChart(canvasId,rows,inKey,preKey,opts={}){
 }
 
 function render(){
+  if(publishedTrendSnapshot){renderCohortDashboard();return;}
   ensureCreatedAmounts();
   updateViewNote();
   const field=fieldConfig();

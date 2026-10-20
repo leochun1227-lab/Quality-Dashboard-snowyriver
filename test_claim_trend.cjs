@@ -66,6 +66,8 @@ test('Pending quotes keep missing amounts distinct from zero and exclude In Fiel
 });
 
 const dailySnapshot={schema:'claim-startup-v1',publication:'pdv-daily-v1',generation:'a'.repeat(20),
+  cohortSchema:'claims-issues-v1',cohortBasis:'claim_created_on',issuePopulationComplete:true,
+  cohortMonthly:[{month:'2026-10',totalClaims:9,approvedClaims:4,pendingClaims:5,totalIssues:20,approvedIssues:8,pendingIssues:12}],
   generatedAt:'2026-10-20',statusVersion:'status-version',sourceVersion:'["team","core","so"]',closedIndex:{},
   monthly:[{month:'2026-10',createdPre:9,approvedCreatedPre:4,createdAmountPre:77,approvedAmountPre:88}],
   pendingMonthly:[{month:'2026-10',pendingPre:5}],
@@ -147,4 +149,30 @@ test('monthly bars share a scale, preserve zero, and omit unknown or future valu
   assert.equal(bars[2].h,0);
   assert.deepEqual(labels.filter(item=>['100','50','0'].includes(item.text)).map(item=>item.text),['100','50','0']);
   assert.equal(canvas.width,2000);
+});
+
+test('Approved and Pending stack in the same column beside Total, using the combined scale',()=>{
+  const a=app(),bars=[];
+  const ctx={setTransform(){},clearRect(){},fillRect(x,y,w,h){bars.push({x,y,w,h});},fillText(){},measureText(){return {width:15};}};
+  a.context.document.getElementById=()=>({getBoundingClientRect:()=>({width:1000,height:265}),getContext:()=>ctx});
+  a.context.devicePixelRatio=1;a.run('finishChartRender=()=>{}');
+  a.run("drawPendingBarChart('chart',[{month:'2026-01',total:150,approved:100,pending:50}],cohortSeries())");
+  assert.equal(bars.length,3);
+  assert.ok(bars[0].x<bars[1].x);
+  assert.equal(bars[1].x,bars[2].x);
+  assert.ok(Math.abs(bars[0].h-bars[1].h-bars[2].h)<.001);
+  assert.ok(Math.abs(bars[2].y+bars[2].h-bars[1].y)<.001);
+});
+
+test('Issue cohorts distinguish unavailable from zero and omit future comparison months',()=>{
+  const a=app();a.context.snapshot=dailySnapshot;
+  a.run('applyPublishedTrendSources(snapshot,"fresh"); MONTHLY=snapshot.monthly;MONTHS_INDEX=Object.fromEntries(MONTHLY.map(r=>[r.month,r]));');
+  assert.deepEqual(a.json('cohortPoint("2026-10","Issues")'),{total:20,approved:8,pending:12});
+  assert.deepEqual(a.json('cohortPoint("2026-11","Issues")'),{total:null,approved:null,pending:null});
+  a.context.partial={...dailySnapshot,issuePopulationComplete:false,cohortMonthly:[{...dailySnapshot.cohortMonthly[0],totalIssues:null,pendingIssues:null}]};
+  a.run('applyPublishedTrendSources(partial,"fresh")');
+  assert.equal(a.run('validPublishedTrend(partial)'),true);
+  assert.deepEqual(a.json('cohortPoint("2026-10","Issues")'),{total:null,approved:8,pending:null});
+  a.run('partial.cohortMonthly[0].totalIssues=0');
+  assert.equal(a.run('validPublishedTrend(partial)'),false);
 });

@@ -1,7 +1,7 @@
 // Pre Delivery adaptation of the shared Warranty Pending charts.
 // Charts consume one complete result produced by the daily publisher.
 const PDV_DAILY_TREND_PATH='issueSubcategoryAnalysis/v1/c4cTickets_test/pdvDashboard/historicalClaimTrendStartup';
-const PDV_DAILY_TREND_CACHE_KEY='pdv-historical-daily:v1';
+const PDV_DAILY_TREND_CACHE_KEY='pdv-historical-daily:v2';
 let publishedTrendSnapshot=null;
 let createdAmountsState={ready:false};
 function validPublishedTrend(snapshot){
@@ -9,6 +9,13 @@ function validPublishedTrend(snapshot){
     &&/^[a-f0-9]{20}$/.test(snapshot.generation)&&snapshot.generatedAt&&snapshot.statusVersion
     &&Array.isArray(snapshot.monthly)&&snapshot.monthly.length>0
     &&snapshot.monthly.every(row=>Number.isFinite(row.createdAmountPre))
+    &&snapshot.cohortSchema==='claims-issues-v1'&&snapshot.cohortBasis==='claim_created_on'
+    &&typeof snapshot.issuePopulationComplete==='boolean'
+    &&Array.isArray(snapshot.cohortMonthly)&&snapshot.cohortMonthly.length>0
+    &&snapshot.cohortMonthly.every(row=>['totalClaims','approvedClaims','pendingClaims','approvedIssues'].every(k=>Number.isInteger(row[k])&&row[k]>=0)
+      &&['totalIssues','pendingIssues'].every(k=>snapshot.issuePopulationComplete?Number.isInteger(row[k])&&row[k]>=0:row[k]===null)
+      &&row.approvedClaims+row.pendingClaims<=row.totalClaims
+      &&(!snapshot.issuePopulationComplete||row.approvedIssues+row.pendingIssues<=row.totalIssues))
     &&Array.isArray(snapshot.pendingMonthly)&&Array.isArray(snapshot.pendingAmountMonthly);
 }
 function applyPublishedTrendSources(snapshot,mode){
@@ -98,7 +105,7 @@ function pendingDescription(){
   return 'Pre Delivery only. Current open Claims awaiting approval, grouped by Created On; approved, closed, rejected and cancelled Claims are excluded. This is not a historical month-end balance.';
 }
 function showPendingLegend(id,items){
-  $(id).innerHTML=items.map(item=>`<span><i style="background:${item.color}"></i>${item.label}</span>`).join('');
+  $(id).innerHTML=items.map(item=>`<span><i style="background:${item.color};width:12px;height:12px;border-radius:0"></i>${item.label}</span>`).join('');
   $(id).setAttribute('style','visibility:visible!important;display:flex!important');
   $(id).title=pendingDescription().replace("Pre Delivery only. ", "");
 }
@@ -119,25 +126,35 @@ function drawPendingBarChart(canvasId,rows,series,opts={}){
   ctx.font='500 13px Segoe UI Variable,Aptos,Segoe UI,Arial';ctx.textAlign='center';
   if(!rows.length){ctx.fillStyle='#64748b';ctx.fillText('No monthly data found.',w/2,h/2);finishChartRender(canvas);return;}
   const valid=value=>value!==null&&value!==undefined&&Number.isFinite(Number(value));
-  const values=rows.flatMap(row=>series.map(item=>row[item.key])).filter(valid).map(Number);
+  const values=rows.flatMap(row=>series.map(item=>valid(row[item.key])?Number(row[item.key])+Number(item.baseKey?row[item.baseKey]||0:0):null)).filter(valid).map(Number);
   const max=Math.max(10,...values),min=Math.min(0,...values);
   const upper=opts.yMax?opts.yMax(max):Math.ceil(max/100)*100;
   const lower=min<0?-Math.abs(opts.yMax?opts.yMax(-min):Math.ceil(-min/100)*100):0;
   const left=28,top=44,bottom=68,plotW=w-left*2,plotH=Math.max(1,h-top-bottom);
   const y=value=>top+plotH*(upper-Number(value))/(upper-lower),baseline=y(0);
   const groupW=plotW/rows.length,gap=Math.min(8,groupW*.08);
-  const barW=Math.min(24,(groupW*.76-gap*(series.length-1))/series.length);
-  const clusterW=barW*series.length+gap*(series.length-1),labels=[];
+  const slots=[...new Set(series.map(item=>item.stack||item.key))];
+  const barW=Math.min(24,(groupW*.76-gap*(slots.length-1))/slots.length);
+  const clusterW=barW*slots.length+gap*(slots.length-1),labels=[];
   rows.forEach((row,i)=>{
     const center=left+groupW*(i+.5);
-    series.forEach((item,index)=>{
+    series.forEach(item=>{
       const value=row[item.key];if(!valid(value))return;
-      const x=center-clusterW/2+index*(barW+gap),valueY=y(value);
+      const index=slots.indexOf(item.stack||item.key),base=item.baseKey?Number(row[item.baseKey]||0):0;
+      const x=center-clusterW/2+index*(barW+gap),valueY=y(Number(value)+base),baseY=y(base);
       ctx.fillStyle=item.color;
-      ctx.fillRect(x,Math.min(baseline,valueY),barW,Math.abs(baseline-valueY));
+      ctx.fillRect(x,Math.min(baseY,valueY),barW,Math.abs(baseY-valueY));
       const formatter=item.formatter||opts.pointFormatter||num;
-      labels.push({text:formatter(value,row),x:x+barW/2,y:Math.min(baseline,valueY)-9});
+      const inside=item.inside&&Math.abs(baseY-valueY)>=14&&ctx.measureText(formatter(value,row)).width<barW-2;
+      const stackTop=item.stack?y(series.filter(other=>other.stack===item.stack).reduce((sum,other)=>sum+Number(row[other.key]||0),0)):Math.min(baseY,valueY);
+      labels.push({text:formatter(value,row),x:x+barW/2,
+        y:inside?(baseY+valueY)/2+4:stackTop-9-(item.baseKey?16:0),color:inside?'#fff':item.stack?item.color:'#172033'});
     });
+    if(opts.groupLabels){
+      ctx.fillStyle='#475569';ctx.font='500 10px Segoe UI,Arial';
+      opts.groupLabels.forEach((label,index)=>ctx.fillText(label,center-clusterW/2+(index*2+.5)*(barW+gap)+barW/2,baseline+14));
+      ctx.font='500 13px Segoe UI Variable,Aptos,Segoe UI,Arial';
+    }
     ctx.fillStyle='#475569';ctx.fillText(row.label||monthShort(row.month),center,h-36);
   });
   // Keep the larger numbers readable when adjacent bars have similar values.
@@ -148,7 +165,7 @@ function drawPendingBarChart(canvasId,rows,series,opts={}){
     let textY=label.y;
     const overlaps=()=>placed.some(box=>x-half<box.right+3&&x+half>box.left-3&&textY-13<box.bottom+3&&textY>box.top-3);
     while(overlaps()&&textY>30)textY-=16;
-    ctx.fillText(label.text,x,textY);
+    ctx.fillStyle=label.color;ctx.fillText(label.text,x,textY);
     placed.push({left:x-half,right:x+half,top:textY-13,bottom:textY});
   });
   ctx.fillStyle='#475569';
@@ -195,9 +212,10 @@ function renderPendingAmounts(approvedRows){
   $('approvedAmountChart').setAttribute('role','img');
   $('approvedAmountChart').setAttribute('aria-label',`Approved by ${amountDateLabel()}; Pending Quote by Created On. `+rows.map(r=>`${r.month}: Approved ${r.total===null?'unavailable':moneyNum(r.total)}, Pending Quote ${r.pending===null?'unavailable':moneyNum(r.pending)}${r.missing?`, ${r.missing} missing amounts`:''}`).join('; '));
 }
-function renderPendingComparison(approvedRows,amountRows){
+function renderPendingComparison(approvedRows,amountRows,amountOnly=false){
   loadPendingTickets();loadPendingAmounts();
   for(const [amount,input,canvas,legend,totals] of [[false,approvedRows,'approvedChart','approvedLegend','approvedTotalsAll'],[true,amountRows,'approvedAmountChart','amountLegend','amountTotalsAll']]){
+    if(amountOnly&&!amount)continue;
     const rows=input.map(row=>{
       const a=pendingPoint(buildMonthKey(compareYearA,Number(row.month.slice(5))),amount);
       const b=pendingPoint(buildMonthKey(compareYearB,Number(row.month.slice(5))),amount);
@@ -226,6 +244,61 @@ function renderPendingComparison(approvedRows,amountRows){
     if(amount)updatePendingNote(rows.map(r=>({missing:r.missingA+r.missingB})));
   }
 }
+function cohortPoint(month,metric){
+  const row=publishedTrendSnapshot.cohortMonthly.find(r=>r.month===month)||{};
+  const visible=month>=dataBounds().min&&month<=dataBounds().max;
+  const value=kind=>!visible?null:metric==='Issues'&&kind!=='approved'&&!publishedTrendSnapshot.issuePopulationComplete
+    ?null:Number(row[kind+metric]||0);
+  return {total:value('total'),approved:value('approved'),pending:value('pending')};
+}
+function cohortSeries(suffix=''){
+  return [{key:'total'+suffix,color:'#62a9c8'},
+    {key:'approved'+suffix,color:'#156082',stack:'status'+suffix,inside:true},
+    {key:'pending'+suffix,color:'#e97132',stack:'status'+suffix,baseKey:'approved'+suffix,inside:true}];
+}
+function cohortChartRows(metric){
+  if(viewMode!=='compare')return rowsForRange().map(r=>({month:r.month,...cohortPoint(r.month,metric)}));
+  return Array.from({length:12},(_,i)=>{
+    const month=buildMonthKey(compareYearA,i+1),a=cohortPoint(month,metric),b=cohortPoint(buildMonthKey(compareYearB,i+1),metric);
+    return {month,label:monthShort(month),totalA:a.total,approvedA:a.approved,pendingA:a.pending,
+      totalB:b.total,approvedB:b.approved,pendingB:b.pending};
+  });
+}
+function renderCohortChart(metric,canvas,legend,totals){
+  const comparison=viewMode==='compare',rows=cohortChartRows(metric);
+  const series=comparison?[...cohortSeries('A'),...cohortSeries('B')]:cohortSeries();
+  drawPendingBarChart(canvas,rows,series,comparison?{caption:`${compareYearA} vs ${compareYearB}`,groupLabels:[compareYearA,compareYearB]}:{});
+  const groups=comparison?[[compareYearA,'A'],[compareYearB,'B']]:[['','']];
+  setTotals(totals,groups.flatMap(([year,suffix])=>['total','approved','pending'].map(key=>({
+    label:`${key==='total'?'Total':key==='approved'?'Approved':'Pending'}${year?' '+year:''}`,
+    value:rows.some(r=>r[key+suffix]!==null)?num(sumValueRows(rows,key+suffix)):'—'}))));
+  showPendingLegend(legend,[{label:'Total',color:'#62a9c8'},{label:'Approved',color:'#156082'},{label:'Pending',color:'#e97132'}]);
+  $(legend).title='Grouped by Claim Created On. Total includes all statuses; Approved and Pending are distinct subsets. Rejected, cancelled and other statuses remain in Total.';
+  const describe=(row,suffix='')=>`Total ${row['total'+suffix]??'unavailable'}, Approved ${row['approved'+suffix]??'unavailable'}, Pending ${row['pending'+suffix]??'unavailable'}`;
+  $(canvas).setAttribute('role','img');
+  $(canvas).setAttribute('aria-label',`${metric} by Claim Created On. `+rows.map(r=>comparison
+    ?`${r.label}: ${compareYearA} ${describe(r,'A')}; ${compareYearB} ${describe(r,'B')}`:`${r.month}: ${describe(r)}`).join('; '));
+}
+function renderCohortDashboard(){
+  updateViewNote();
+  renderCohortChart('Claims','newClaimChart','newClaimLegend','newClaimTotalsAll');
+  renderCohortChart('Issues','approvedChart','approvedLegend','approvedTotalsAll');
+  const note=$('issueAvailabilityNote');
+  if(note){note.hidden=publishedTrendSnapshot.issuePopulationComplete;note.textContent=note.hidden?'':'Total / Pending Issues: awaiting the complete daily update from Planning.';}
+  const amountKeys=amountDateBasis==='created'?['createdAmountIn','createdAmountPre']:['approvedAmountIn','approvedAmountPre'];
+  if(viewMode==='compare')renderPendingComparison([],compareRowsForMetric(...amountKeys,compareYearA,compareYearB),true);
+  else renderPendingAmounts(totalRowsForRange(...amountKeys));
+}
+function cohortExportSheets(){
+  if(!publishedTrendSnapshot?.cohortMonthly)return [];
+  const included=month=>viewMode==='compare'?[compareYearA,compareYearB].includes(month.slice(0,4)):month>=activeStart&&month<=activeEnd;
+  const keys=['totalClaims','approvedClaims','pendingClaims','totalIssues','approvedIssues','pendingIssues'];
+  return [{name:'Monthly Claims and Issues',rows:[['Month basis','Claim Created On'],
+    ['Status updated',publishedTrendSnapshot.statusVersion],['Issues updated',publishedTrendSnapshot.issueGeneratedAt],
+    ['Total includes all statuses. Approved and Pending are distinct subsets; other statuses are not Pending.'],[],
+    ['Month','Total Claims','Approved Claims','Pending Claims','Total Issues','Approved Issues','Pending Issues'],
+    ...publishedTrendSnapshot.cohortMonthly.filter(r=>included(r.month)).map(r=>[r.month,...keys.map(k=>r[k]??'Unavailable')])]}];
+}
 async function ensurePendingExport(){
   await loadPendingTickets();
   if(pendingState.rows===null||pendingState.error)throw Error('Pending tickets unavailable. Refresh to retry.');
@@ -239,5 +312,5 @@ function pendingExportSheets(){
     return [row.month,row.pendingPre,quote.value??'Unavailable',quote.known,quote.missing];
   });
   return [{name:'Pending Monthly',rows:[['Scope',pendingDescription()],['Quote source','Claim Amount; separate from Approved SAP amounts. Missing quotes are not zero.'],
-    ['Status source updated',pendingState.version],[],['Created Month','Pending Pre Delivery Claims','Known Claim Amount subtotal','Quotes available','Quotes missing'],...rows]}];
+    ['Status source updated',pendingState.version],[],['Created Month','Pending Pre Delivery Claims','Known Claim Amount subtotal','Quotes available','Quotes missing'],...rows]},...cohortExportSheets()];
 }

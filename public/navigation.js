@@ -10,14 +10,21 @@
     ['Tickets','infieldpredelivery.html','Claim Trend Overview','<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h10M7 13h7"/>'],
     ['Analysis','parts.html','Top10 Failure Parts','<path d="M4 7h16M7 7v10m10-10v10M5 17h14M9 11h6"/>']
   ];
-  const levels=document.getElementById('level-switch');
+  let levels=document.getElementById('level-switch');
+  if(!levels){
+    levels=document.createElement('div');levels.className='level-switch';
+    levels.setAttribute('role','group');levels.setAttribute('aria-label','Classification level');
+    for(const [level,label] of [['l2','L2 · Components'],['l3','L3 · Failure modes']]){
+      const link=document.createElement('a');link.href='index.html#'+level;link.textContent=label;levels.append(link);
+    }
+  }
   for(const [group,url,title,paths] of pages){
     const section=document.createElement('section');section.className='site-nav-section';
     const heading=document.createElement('h2');heading.textContent=group;section.append(heading);
     const a=document.createElement('a');a.href=url;a.className='site-nav-link';a.innerHTML=icon(paths);
     const label=document.createElement('span');label.textContent=title;a.append(label);
     if(current===url)a.setAttribute('aria-current','page');section.append(a);
-    if(url==='index.html'&&levels)section.append(levels);
+    if(url==='index.html')section.append(levels);
     links.append(section);
   }
   const controls=document.querySelector('.overview-head,.toolbar');

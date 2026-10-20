@@ -1,5 +1,6 @@
 import unittest
-from claim_trend_snapshot import build_historical_trend
+from claim_trend_snapshot import build_historical_trend, build_cohort_monthly, claim_rows_from_tickets
+from refresh import approved
 
 
 class DailyTrendTest(unittest.TestCase):
@@ -47,6 +48,31 @@ class DailyTrendTest(unittest.TestCase):
         self.assertEqual(first['generation'],self.build(rows)['generation'])
         rows[0]['quotedClaimAmount']=6
         self.assertNotEqual(first['generation'],self.build(rows)['generation'])
+
+    def test_claims_and_issues_use_parent_creation_month_and_current_distinct_statuses(self):
+        rows=[self.ticket('approved',statusCode='Y2',claimApprovedOn='2026-10-01'),
+              self.ticket('pending'), self.ticket('rejected',statusText='Rejected'),
+              self.ticket('no-issues',created='2026-09-08'),self.ticket('outside',claimType='In Field')]
+        issues=[('approved',[0,'1']),('approved',[0,'2']),('pending',[0,'1']),('rejected',[0,'1'])]
+        result=build_cohort_monthly(rows,issues,approved)
+        self.assertEqual(result[0],{'month':'2025-02','totalClaims':3,'approvedClaims':1,'pendingClaims':1,
+            'totalIssues':4,'approvedIssues':2,'pendingIssues':1})
+        self.assertEqual(result[1]['totalClaims'],1)
+        self.assertEqual(result[1]['totalIssues'],0)
+
+    def test_duplicate_issues_and_unmatched_parents_fail_before_publication(self):
+        with self.assertRaisesRegex(ValueError,'Duplicate historical Issue'):
+            build_cohort_monthly([self.ticket('a')],[('a',[0,'1']),('a',[0,'1'])],approved)
+        with self.assertRaisesRegex(ValueError,'no matching'):
+            build_cohort_monthly([],[('a',[0,'1'])],approved)
+
+    def test_cohort_normalization_uses_canonical_ticket_dates(self):
+        rows=claim_rows_from_tickets([None,{'ticket':{'TicketID':'a','TicketTypeText':'Pre Delivery Warranty Claims',
+            'CreatedOnDateTime':'2025-02-03','TicketStatus':'Y7','TicketStatusText':'Approved Claims Closed',
+            'ClaimApprovedOnDateTime':'2026-10-01'}}])
+        result=build_cohort_monthly(rows,[('a',[0,'1'])],approved)
+        self.assertEqual(result[0]['month'],'2025-02')
+        self.assertEqual(result[0]['approvedIssues'],1)
 
 
 if __name__=='__main__':

@@ -12,10 +12,13 @@
     $('show-l2').setAttribute('aria-pressed',String(level==='l2'));
     $('show-l3').setAttribute('aria-pressed',String(level==='l3'));
   }
-  $('show-l2').onclick=()=>setLevel('l2');$('show-l3').onclick=()=>setLevel('l3');
+  function selectLevel(level){setLevel(level);history.replaceState(null,'','#'+level);}
+  $('show-l2').onclick=()=>selectLevel('l2');$('show-l3').onclick=()=>selectLevel('l3');
   $('show-definitions').onclick=()=>$('definitions').showModal();
   $('close-definitions').onclick=()=>$('definitions').close();
-  setLevel('l2');
+  const levelFromLocation=()=>setLevel(location.hash==='#l3'?'l3':'l2');
+  window.addEventListener('hashchange',levelFromLocation);
+  levelFromLocation();
   // Stable system colours; filtering changes ranking without changing a system's colour.
   const systemTones={'Electrical System':'blue','Others':'slate','External Fixtures':'teal','Interior Components':'violet',
     'Exterior Components':'teal','Mechanical':'slate','Appliances':'blue','Gas System':'amber','Plumbing':'teal',

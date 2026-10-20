@@ -70,7 +70,9 @@ class PortableUpdateTest(unittest.TestCase):
             (root/'firebase-service-account.json').write_text('{}')
             (root/'issue_subcategories.json').write_text('{"categories":{}}')
             with ZipFile(package) as archive:
-                self.assertEqual(len(archive.namelist()),6)
+                self.assertEqual(set(archive.namelist()),{'pdv_update_install/'+name for name in (
+                    'refresh.py','pdv_scope.py','claim_trend_page.py','claim_trend_snapshot.py',
+                    'install_daily_hook.py','install_on_planning.cmd','README.txt')})
                 self.assertTrue(all(name.startswith('pdv_update_install/') and '..' not in Path(name).parts for name in archive.namelist()))
                 archive.extractall(root)
             result=subprocess.run(['cmd.exe','/d','/c',str(root/'pdv_update_install'/'install_on_planning.cmd')],

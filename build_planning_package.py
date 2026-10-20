@@ -60,6 +60,12 @@ README='''Planning 安装方法
 检查网络及 Firebase 权限是否成功，需要查看首次实际更新日志：
 logs\\ctm_daily_5pm_YYYYMMDD.log
 成功信息为 PASS: Firebase dashboard publication verified。
+
+本版本新增 Claim Trend 月度 Claims / Issues 的 Total、Approved、Pending 汇总。
+直接读取本机每日 Issue Position 步骤已经保存的完整扫描结果：
+%LOCALAPPDATA%\\WarrantyIssueAI\\state\\latest-position-result.json
+因此必须在执行每日更新的同一 Windows 用户下运行；缺失或版本不符时保留上一版。
+不增加 C4C 扫描或 AI 调用。安装后，下一次完整每日更新成功才会补齐网页 Issue 数据。
 '''
 
 def build():
