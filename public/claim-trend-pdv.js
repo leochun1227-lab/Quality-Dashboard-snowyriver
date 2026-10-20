@@ -1,22 +1,74 @@
 // Pre Delivery adaptation of the shared Warranty Pending charts.
-let createdAmountsState={started:false,ready:false,error:false};
-function resetPdvTrendSources(){
-  createdAmountsState={started:false,ready:false,error:false};
-  pendingState={started:false,rows:null,error:false,version:""};
-  pendingAmountState={started:false,rows:null,error:false};
+// Charts consume one complete result produced by the daily publisher.
+const PDV_DAILY_TREND_PATH='issueSubcategoryAnalysis/v1/c4cTickets_test/pdvDashboard/historicalClaimTrendStartup';
+const PDV_DAILY_TREND_CACHE_KEY='pdv-historical-daily:v1';
+let publishedTrendSnapshot=null;
+let createdAmountsState={ready:false};
+function validPublishedTrend(snapshot){
+  return snapshot?.schema==='claim-startup-v1'&&snapshot.publication==='pdv-daily-v1'
+    &&/^[a-f0-9]{20}$/.test(snapshot.generation)&&snapshot.generatedAt&&snapshot.statusVersion
+    &&Array.isArray(snapshot.monthly)&&snapshot.monthly.length>0
+    &&snapshot.monthly.every(row=>Number.isFinite(row.createdAmountPre))
+    &&Array.isArray(snapshot.pendingMonthly)&&Array.isArray(snapshot.pendingAmountMonthly);
 }
-function ensureCreatedAmounts(){
-  if(amountDateBasis!=="created"||createdAmountsState.started)return;
-  const state=createdAmountsState;state.started=true;
-  state.promise=ensureAmountTicketRowsLoaded().then(()=>{
-    if(state!==createdAmountsState)return;
-    MONTHLY=withCreatedAmountMonthly(MONTHLY);
-    MONTHS_INDEX=Object.fromEntries(MONTHLY.map(row=>[row.month,row]));
-    state.ready=true;renderWithPageLoading(false);
-  }).catch(error=>{
-    if(state!==createdAmountsState)return;
-    state.error=true;console.warn('Created On amounts unavailable',error);renderWithPageLoading(false);
-  });
+function applyPublishedTrendSources(snapshot,mode){
+  publishedTrendSnapshot=snapshot;
+  createdAmountsState={ready:true};
+  pendingState={started:true,rows:snapshot.pendingMonthly,error:false,version:snapshot.statusVersion,mode};
+  pendingAmountState={started:true,rows:snapshot.pendingAmountMonthly,error:false};
+}
+// Retained renderer hooks are intentionally read-only: no raw feed downloads,
+// aggregation, or separate Pending refresh can occur during a page visit.
+function ensureCreatedAmounts(){}
+function loadPendingTickets(){return Promise.resolve();}
+function loadPendingAmounts(){return Promise.resolve();}
+async function loadPublishedTrend(){
+  const cache=window.WarrantyPageCache;
+  let shown=null;
+  const apply=(snapshot,mode)=>{
+    if(!validPublishedTrend(snapshot))throw Error('Daily chart result is incomplete');
+    const first=!shown;
+    applyPublishedTrendSources(snapshot,mode);
+    claimMonthlyReady=true;
+    if(first)init({},true,snapshot.closedIndex,snapshot.monthly);
+    else{
+      MONTHLY=snapshot.monthly;
+      MONTHS_INDEX=Object.fromEntries(MONTHLY.map(row=>[row.month,row]));
+      CLAIM_CLOSED_INDEX=snapshot.closedIndex||{};
+      amountTicketRows=null;amountTicketsById=new Map();
+      RAW_TICKETS=[];rawTicketsLoaded=false;claimSourceVersionsPromise=null;
+      syncAmountDateControls();renderWithPageLoading(false);
+    }
+    shown=snapshot;
+    cache?.showBadge(snapshot.generatedAt,mode);
+    if(first)finishInitialScroll();
+  };
+  try{
+    const record=await cache?.getPageRecord(PDV_DAILY_TREND_CACHE_KEY);
+    if(validPublishedTrend(record?.value))apply(record.value,'checking');
+  }catch(error){console.warn('Saved daily chart result unavailable',error);}
+  try{
+    const generation=await readJson(`${PDV_DAILY_TREND_PATH}/generation`,4000);
+    if(!generation)throw Error('Daily chart result has not been published');
+    if(shown?.generation===generation){
+      pendingState.mode='fresh';renderWithPageLoading(false);
+      cache?.showBadge(shown.generatedAt,'cached');return;
+    }
+    const envelope=await readJson(`${PDV_DAILY_TREND_PATH}`,10000);
+    const snapshot={...envelope,...(typeof envelope?.data==='string'?JSON.parse(envelope.data):{})};
+    if(snapshot.generation!==generation)throw Error('Daily result changed while loading; refresh to retry');
+    apply(snapshot,'fresh');
+    void cache?.setPage(PDV_DAILY_TREND_CACHE_KEY,snapshot.generation,snapshot);
+  }catch(error){
+    console.warn('Daily chart result unavailable',error);
+    if(shown){
+      pendingState.mode='offline';renderWithPageLoading(false);
+      cache?.showBadge(shown.generatedAt,'offline');
+    }else{
+      showError('Daily chart result is not available yet. Refresh after the daily update completes.');
+      showPageLoading(false);
+    }
+  }
 }
 function approvedAmountReady(){return amountDateBasis!=="created"||createdAmountsState.ready;}
 function pendingPoint(month,amount=false){
@@ -39,53 +91,109 @@ function pendingTotal(rows,amount=false){
 }
 function pendingLegend(amount=false){
   const state=amount?pendingAmountState:pendingState;
-  return state.rows!==null?(amount?'Pending Quote':'Pending'):state.error||pendingState.error?'Pending unavailable · refresh to retry':'Pending loading…';
+  const saved=pendingState.mode==='checking'?' · saved data, checking updates':pendingState.mode==='offline'?' · saved data, update unavailable':'';
+  return state.rows!==null?(amount?'Pending Quote':'Pending')+saved:state.error||pendingState.error?'Pending unavailable · refresh to retry':'Pending loading…';
 }
 function pendingDescription(){
   return 'Pre Delivery only. Current open Claims awaiting approval, grouped by Created On; approved, closed, rejected and cancelled Claims are excluded. This is not a historical month-end balance.';
 }
 function showPendingLegend(id,items){
-  setLegend(id,items);$(id).setAttribute('style','visibility:visible!important;display:flex!important');
-  $(id).title=pendingDescription();
+  $(id).innerHTML=items.map(item=>`<span><i style="background:${item.color}"></i>${item.label}</span>`).join('');
+  $(id).setAttribute('style','visibility:visible!important;display:flex!important');
+  $(id).title=pendingDescription().replace("Pre Delivery only. ", "");
 }
 function updatePendingNote(rows){
-  const note=$('amountPendingNote');note.hidden=false;
+  const note=$('amountPendingNote');
   const missing=sumValueRows(rows,'missing');
-  note.textContent='Pending Quote: current open Pre Delivery Claims’ Claim Amount, grouped by Created On. Approved: SAP purchase order amount.'+
-    (missing?` * Partial amount: ${num(missing)} Pending Claims have no Claim Amount.`:'')+
+  note.textContent=(missing?`* Partial amount: ${num(missing)} Pending Claims have no Claim Amount.`:'')+
     (pendingAmountState.rows===null?(pendingAmountState.error||pendingState.error?' Pending amounts unavailable; refresh to retry.':' Loading Pending amounts…'):'')+
     (!approvedAmountReady()?(createdAmountsState.error?' Approved amounts unavailable; click Created On to retry.':' Loading Approved amounts by Created On…'):'');
+  note.hidden=!note.textContent.trim();
+}
+function drawPendingBarChart(canvasId,rows,series,opts={}){
+  const canvas=$(canvasId);if(!canvas)return;
+  const rect=canvas.getBoundingClientRect(),dpr=devicePixelRatio||1;
+  const w=Math.max(1,rect.width),h=Math.max(1,rect.height);
+  canvas.width=w*dpr;canvas.height=h*dpr;
+  const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+  ctx.font='500 13px Segoe UI Variable,Aptos,Segoe UI,Arial';ctx.textAlign='center';
+  if(!rows.length){ctx.fillStyle='#64748b';ctx.fillText('No monthly data found.',w/2,h/2);finishChartRender(canvas);return;}
+  const valid=value=>value!==null&&value!==undefined&&Number.isFinite(Number(value));
+  const values=rows.flatMap(row=>series.map(item=>row[item.key])).filter(valid).map(Number);
+  const max=Math.max(10,...values),min=Math.min(0,...values);
+  const upper=opts.yMax?opts.yMax(max):Math.ceil(max/100)*100;
+  const lower=min<0?-Math.abs(opts.yMax?opts.yMax(-min):Math.ceil(-min/100)*100):0;
+  const left=28,top=44,bottom=68,plotW=w-left*2,plotH=Math.max(1,h-top-bottom);
+  const y=value=>top+plotH*(upper-Number(value))/(upper-lower),baseline=y(0);
+  const groupW=plotW/rows.length,gap=Math.min(8,groupW*.08);
+  const barW=Math.min(24,(groupW*.76-gap*(series.length-1))/series.length);
+  const clusterW=barW*series.length+gap*(series.length-1),labels=[];
+  rows.forEach((row,i)=>{
+    const center=left+groupW*(i+.5);
+    series.forEach((item,index)=>{
+      const value=row[item.key];if(!valid(value))return;
+      const x=center-clusterW/2+index*(barW+gap),valueY=y(value);
+      ctx.fillStyle=item.color;
+      ctx.fillRect(x,Math.min(baseline,valueY),barW,Math.abs(baseline-valueY));
+      const formatter=item.formatter||opts.pointFormatter||num;
+      labels.push({text:formatter(value,row),x:x+barW/2,y:Math.min(baseline,valueY)-9});
+    });
+    ctx.fillStyle='#475569';ctx.fillText(row.label||monthShort(row.month),center,h-36);
+  });
+  // Keep the larger numbers readable when adjacent bars have similar values.
+  const placed=[];ctx.fillStyle='#172033';
+  labels.forEach(label=>{
+    const half=ctx.measureText(label.text).width/2;
+    const x=Math.max(half+3,Math.min(w-half-3,label.x));
+    let textY=label.y;
+    const overlaps=()=>placed.some(box=>x-half<box.right+3&&x+half>box.left-3&&textY-13<box.bottom+3&&textY>box.top-3);
+    while(overlaps()&&textY>30)textY-=16;
+    ctx.fillText(label.text,x,textY);
+    placed.push({left:x-half,right:x+half,top:textY-13,bottom:textY});
+  });
+  ctx.fillStyle='#475569';
+  if(opts.caption)ctx.fillText(opts.caption,w/2,h-10);
+  else{
+    let start=0;
+    while(start<rows.length){
+      const year=rows[start].month.slice(0,4);let end=start;
+      while(end+1<rows.length&&rows[end+1].month.slice(0,4)===year)end++;
+      ctx.fillText(year,left+groupW*(start+end+1)/2,h-10);start=end+1;
+    }
+  }
+  finishChartRender(canvas);
 }
 function renderPendingApproved(approvedRows){
   loadPendingTickets();
   const rows=pendingRows(approvedRows);
-  drawSingleLineChart('approvedChart',rows,'total',{color:'#16a34a',secondaryKey:'pending'});
+  drawPendingBarChart('approvedChart',rows,[{key:'total',color:'#156082'},{key:'pending',color:'#e97132'}]);
   setTotals('approvedTotalsAll',[
-    {label:'Approved · Pre Delivery',value:num(sumValueRows(rows))},
-    {label:'Pending · Pre Delivery',value:pendingTotal(rows)}
+    {label:'Approved',value:num(sumValueRows(rows))},
+    {label:'Pending',value:pendingTotal(rows)}
   ]);
   showPendingLegend('approvedLegend',[
-    {label:`Approved · ${approvedDateLabel()}`,color:'#16a34a'},
-    {label:`${pendingLegend()} · Created On`,color:'#8b5cf6',dashed:true}
+    {label:`Approved · ${approvedDateLabel()}`,color:'#156082'},
+    {label:`${pendingLegend()} · Created On`,color:'#e97132'}
   ]);
   $('approvedChart').setAttribute('role','img');
-  $('approvedChart').setAttribute('aria-label',`Pre Delivery. Approved by ${approvedDateLabel()}; Pending by Created On. `+rows.map(r=>`${r.month}: Approved ${r.total}, Pending ${r.pending??'unavailable'}`).join('; '));
+  $('approvedChart').setAttribute('aria-label',`Approved by ${approvedDateLabel()}; Pending by Created On. `+rows.map(r=>`${r.month}: Approved ${r.total}, Pending ${r.pending??'unavailable'}`).join('; '));
 }
 function renderPendingAmounts(approvedRows){
   loadPendingAmounts();
   const rows=pendingRows(approvedRows,true);
-  drawSingleLineChart('approvedAmountChart',rows,'total',{color:'#0f766e',yMax:niceCurrencyMax,pointFormatter:moneyK,secondaryKey:'pending',secondaryFormatter:(v,r)=>moneyNum(v)+(r.missing?'*':'')});
+  drawPendingBarChart('approvedAmountChart',rows,[{key:'total',color:'#156082'},
+    {key:'pending',color:'#e97132',formatter:(v,r)=>moneyNum(v)+(r.missing?'*':'')}],{yMax:niceCurrencyMax,pointFormatter:moneyK});
   setTotals('amountTotalsAll',[
-    {label:'Approved · Pre Delivery',value:approvedAmountReady()?moneyNum(sumValueRows(rows)):'—'},
-    {label:'Pending Quote · Pre Delivery',value:pendingTotal(rows,true)}
+    {label:'Approved',value:approvedAmountReady()?moneyNum(sumValueRows(rows)):'—'},
+    {label:'Pending Quote',value:pendingTotal(rows,true)}
   ]);
   showPendingLegend('amountLegend',[
-    {label:`Approved · ${amountDateLabel()}`,color:'#0f766e'},
-    {label:`${pendingLegend(true)} · Created On`,color:'#8b5cf6',dashed:true}
+    {label:`Approved · ${amountDateLabel()}`,color:'#156082'},
+    {label:`${pendingLegend(true)} · Created On`,color:'#e97132'}
   ]);
   updatePendingNote(rows);
   $('approvedAmountChart').setAttribute('role','img');
-  $('approvedAmountChart').setAttribute('aria-label',`Pre Delivery. Approved by ${amountDateLabel()}; Pending Quote by Created On. `+rows.map(r=>`${r.month}: Approved ${r.total===null?'unavailable':moneyNum(r.total)}, Pending Quote ${r.pending===null?'unavailable':moneyNum(r.pending)}${r.missing?`, ${r.missing} missing amounts`:''}`).join('; '));
+  $('approvedAmountChart').setAttribute('aria-label',`Approved by ${amountDateLabel()}; Pending Quote by Created On. `+rows.map(r=>`${r.month}: Approved ${r.total===null?'unavailable':moneyNum(r.total)}, Pending Quote ${r.pending===null?'unavailable':moneyNum(r.pending)}${r.missing?`, ${r.missing} missing amounts`:''}`).join('; '));
 }
 function renderPendingComparison(approvedRows,amountRows){
   loadPendingTickets();loadPendingAmounts();
@@ -100,25 +208,27 @@ function renderPendingComparison(approvedRows,amountRows){
         pendingA:visible(compareYearA)?a.value:null,pendingB:visible(compareYearB)?b.value:null,
         missingA:a.missing,missingB:b.missing,knownA:a.known,knownB:b.known};
     });
-    drawChart(canvas,rows,'firstValue','secondValue',{...(amount?{yMax:niceCurrencyMax,pointFormatter:moneyK}:{}),extraSeries:[
-      {key:'pendingA',color:'#8b5cf6'},{key:'pendingB',color:'#db2777'}]});
+    drawPendingBarChart(canvas,rows,[{key:'firstValue',color:'#156082'},{key:'pendingA',color:'#e97132'},
+      {key:'secondValue',color:'#62a9c8'},{key:'pendingB',color:'#f4b183'}],{
+      ...(amount?{yMax:niceCurrencyMax,pointFormatter:moneyK}:{}),caption:`${compareYearA} vs ${compareYearB}`});
     const summary=[];
     for(const [year,key,pending,suffix] of [[compareYearA,'firstValue','pendingA','A'],[compareYearB,'secondValue','pendingB','B']]){
       summary.push({label:`Approved ${year}`,value:amount&&!approvedAmountReady()?'—':(amount?moneyNum:num)(sumValueRows(rows,key))});
       summary.push({label:`${amount?'Pending Quote':'Pending'} ${year}`,value:pendingTotal(rows.map(r=>({pending:r[pending],missing:r['missing'+suffix],known:r['known'+suffix]})),amount)});
     }
     setTotals(totals,summary);
-    showPendingLegend(legend,[{label:`Approved ${compareYearA}`,color:'#156082'},{label:`Approved ${compareYearB}`,color:'#e97132'},
-      {label:`${pendingLegend(amount)} ${compareYearA} · Created On`,color:'#8b5cf6',dashed:true},
-      {label:`${pendingLegend(amount)} ${compareYearB} · Created On`,color:'#db2777',dashed:true}]);
+    showPendingLegend(legend,[{label:`Approved ${compareYearA}`,color:'#156082'},
+      {label:`${pendingLegend(amount)} ${compareYearA} · Created On`,color:'#e97132'},
+      {label:`Approved ${compareYearB}`,color:'#62a9c8'},
+      {label:`${pendingLegend(amount)} ${compareYearB} · Created On`,color:'#f4b183'}]);
     $(canvas).setAttribute('role','img');
-    $(canvas).setAttribute('aria-label',`Pre Delivery. Approved by ${amount?amountDateLabel():approvedDateLabel()}; Pending by Created On. `+rows.map(r=>`${r.label}: ${compareYearA} Approved ${r.firstValue??'unavailable'}, Pending ${r.pendingA??'unavailable'}; ${compareYearB} Approved ${r.secondValue??'unavailable'}, Pending ${r.pendingB??'unavailable'}`).join('; '));
+    $(canvas).setAttribute('aria-label',`Approved by ${amount?amountDateLabel():approvedDateLabel()}; Pending by Created On. `+rows.map(r=>`${r.label}: ${compareYearA} Approved ${r.firstValue??'unavailable'}, Pending ${r.pendingA??'unavailable'}; ${compareYearB} Approved ${r.secondValue??'unavailable'}, Pending ${r.pendingB??'unavailable'}`).join('; '));
     if(amount)updatePendingNote(rows.map(r=>({missing:r.missingA+r.missingB})));
   }
 }
 async function ensurePendingExport(){
   await loadPendingTickets();
-  if(pendingState.rows===null)throw Error('Pending tickets unavailable. Refresh to retry.');
+  if(pendingState.rows===null||pendingState.error)throw Error('Pending tickets unavailable. Refresh to retry.');
   await loadPendingAmounts();
   if(pendingAmountState.rows===null)throw Error('Pending quotes unavailable. Refresh to retry.');
 }

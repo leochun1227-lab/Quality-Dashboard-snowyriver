@@ -11,7 +11,7 @@ body.overview-page .site-nav.with-level-switch{grid-template-columns:max-content
 .overview-page .metric{border-color:#d5e0e6;padding:9px 12px;background:#fff}
 .overview-page .metric-title{color:#304e61;font-weight:600}
 .overview-page .metric-note{color:#607585}
-.overview-page .metric-value{color:#163b51}
+.overview-page .metric-value{color:#163b51;font-size:25px}
 .overview-page .classification-board{display:block;min-height:0;flex:1}
 .overview-page .system-map,.overview-page .failure-map{display:flex;flex-direction:column;height:100%;min-height:0;padding:0;border:0}
 .overview-page .map-heading{flex:none;margin:0 0 8px;min-height:26px}
@@ -23,24 +23,25 @@ body.overview-page .site-nav.with-level-switch{grid-template-columns:max-content
 .overview-page .system-cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-auto-flow:row;grid-auto-rows:minmax(min-content,1fr);align-items:stretch;gap:10px;flex:1;min-height:0}
 .overview-page .system-card{width:auto;align-self:stretch;min-width:0;border:1px solid #dfd1c4;border-top:3px solid #d46b21;border-radius:8px;box-shadow:0 2px 5px #18384d0c}
 .overview-page .system-card--wide{grid-column:span 2}
-.overview-page .system-heading{background:#fae5d4;border-bottom:1px solid #efd4bd;min-height:35px;padding:7px 9px;grid-template-columns:minmax(0,1fr) 32px 39px}
+.overview-page .system-heading{background:#fae5d4;border-bottom:1px solid #efd4bd;min-height:35px;padding:7px 9px;grid-template-columns:minmax(0,1fr) 36px 44px}
 .overview-page .system-heading h3{font-size:clamp(12px,.82vw,16px);color:#a7470d;font-weight:700;line-height:1.2}
-.overview-page .system-rank{background:#fff;color:#b95113;border-radius:4px;padding:2px 4px;font-size:10px}
-.overview-page .system-heading .classification-count{color:#713610;font-size:15px;font-weight:700}
-.overview-page .system-heading .classification-share{color:#855232;opacity:1;font-size:11px}
+.overview-page .system-rank{background:#fff;color:#b95113;border-radius:4px;padding:2px 4px;font-size:11px}
+.overview-page .classification-count{font-size:13px}
+.overview-page .system-heading .classification-count{color:#713610;font-size:17px;font-weight:700}
+.overview-page .system-heading .classification-share{color:#855232;opacity:1;font-size:12px}
 .overview-page .component-list{padding:4px 9px 7px}
 .overview-page .component-label{font-size:clamp(11px,.76vw,14px);line-height:1.25;color:#25465b;font-weight:500;padding:2px 0}
-.overview-page .component-row{min-height:20px;grid-template-columns:minmax(0,1fr) 30px 38px;align-items:center}
-.overview-page .classification-columns{grid-template-columns:minmax(0,1fr) 30px 38px;font-size:10px;line-height:18px;color:#875834;background:transparent}
-.overview-page .component-row .classification-count{font-size:12px;color:#203f55;line-height:19px;font-weight:600}
-.overview-page .classification-share{font-size:11px;color:#5d7180}
+.overview-page .component-row{min-height:20px;grid-template-columns:minmax(0,1fr) 34px 43px;align-items:center}
+.overview-page .classification-columns{grid-template-columns:minmax(0,1fr) 34px 43px;font-size:10px;line-height:18px;color:#875834;background:transparent}
+.overview-page .component-row .classification-count{font-size:14px;color:#203f55;line-height:20px;font-weight:600}
+.overview-page .classification-share{font-size:12px;color:#5d7180}
 .overview-page .failure-guide-grid{flex:1;min-height:0;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(2,minmax(min-content,1fr));gap:12px}
 .overview-page .failure-guide-card{border:1px solid #e4c6c1;border-left:4px solid #c43b2e;box-shadow:0 2px 5px #18384d0c}
 .overview-page .failure-guide-heading{background:#f8e5e2;min-height:43px;padding:7px 10px;border-bottom:1px solid #eed2cd}
 .overview-page .failure-guide-heading h3{font-size:clamp(12px,.85vw,16px);font-weight:700;color:#a83228;text-transform:uppercase}
-.overview-page .guide-number{font-size:11px;background:#c53e30;color:white;border:0;padding:4px 5px}
-.overview-page .guide-stat .classification-count{font-size:23px;line-height:24px;color:#803329}
-.overview-page .guide-stat .classification-share{font-size:11px;color:#754d48}
+.overview-page .guide-number{font-size:12px;background:#c53e30;color:white;border:0;padding:4px 5px}
+.overview-page .guide-stat .classification-count{font-size:25px;line-height:27px;color:#803329}
+.overview-page .guide-stat .classification-share{font-size:12px;color:#754d48}
 .overview-page .failure-guide-body{padding:10px;gap:6px}
 .overview-page .guide-definition{font-size:clamp(11px,.77vw,15px);font-weight:650;color:#24445a;line-height:1.35;margin:0}
 .overview-page .guide-descriptions{display:grid;grid-template-columns:1fr 1fr;column-gap:12px;row-gap:3px;margin:0}
@@ -72,7 +73,7 @@ body.overview-page .site-nav.with-level-switch{grid-template-columns:max-content
 #position-usage{display:grid;grid-template-columns:1fr;gap:7px}
 .position-usage-item{display:grid;grid-template-columns:1fr auto;align-items:center;gap:3px;padding:6px 8px;background:white;border:1px solid #e9dacb;border-radius:5px}
 .position-usage-item h5{grid-column:1/-1;font-size:12px;color:#29495e;margin:0}
-.position-usage-item .classification-count{justify-self:start;font-size:20px;color:#714526}
+.overview-page .position-usage-item .classification-count{justify-self:start;font-size:22px;color:#714526}
 @media(max-width:700px){.source-usage-grid{grid-template-columns:1fr}.position-usage{border-left:0;padding-left:0}}
 .overview-footer{display:flex;align-items:center;gap:14px;flex:none;font-size:10px;color:#556e7f;min-height:24px}
 .overview-footer #updated{margin-left:auto}

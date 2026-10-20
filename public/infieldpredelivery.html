@@ -301,7 +301,7 @@ body{
 <body class="charts-loading pdv-trend-page historical-trend-page">
 <div id="calcFloat" class="calcFloat" role="status" aria-live="polite"><span class="calcSpinner" aria-hidden="true"></span><span class="calcFloatText">Loading dashboard...</span></div>
 <div class="app">
-  
+
   <main class="main">
     <div class="toolbar">
       <h1 class="pageTitle">Claim Trend Overview</h1>
@@ -341,18 +341,18 @@ body{
       <section class="panel" id="newclaim">
         <div class="panelHead">
           <h2 class="panelTitle"><span class="titleIcon ic-blue"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span>Tickets Created by Month</h2>
-          
+
         </div>
         <div class="dualChartGrid">
           <div class="dualChartCard">
             <div class="dualChartHead">
-              <div class="dualChartTitle">Pre Delivery</div>
+
               <div id="newClaimTotalsAll" class="grandTotals"></div>
             </div>
             <div class="chartWrap"><canvas id="newClaimChart"></canvas></div>
-            <div id="newClaimLegend" class="legend"><span><i style="background:var(--blue)"></i>Pre Delivery</span></div>
+            <div id="newClaimLegend" class="legend"></div>
           </div>
-          
+
         </div>
       </section>
 
@@ -361,7 +361,7 @@ body{
           <div class="panelTitleWrap">
             <h2 class="panelTitle"><span class="titleIcon ic-green"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.3 12.3l2.5 2.5 4.9-5.6"/></svg></span>Approved Tickets</h2>
             <div class="approvedDateControls">
-              <span class="viewNote">Group by</span>
+
               <div class="miniSwitch" role="group" aria-label="Approved tickets date basis">
                 <button id="approvedOnBtn" class="miniBtn" type="button" aria-pressed="false" aria-describedby="approvedDateNote">Approved On</button>
                 <button id="approvedCreatedOnBtn" class="miniBtn active" type="button" aria-pressed="true" aria-describedby="approvedDateNote">Created On</button>
@@ -369,19 +369,19 @@ body{
             </div>
             <div id="approvedDateNote" class="approvedDateNote" aria-live="polite"></div>
           </div>
-          
+
           <button id="toggleInFieldPending" type="button" aria-pressed="false" aria-controls="approvedSplitChart" hidden>Show In Field Pending</button>
         </div>
         <div class="dualChartGrid">
           <div class="dualChartCard">
             <div class="dualChartHead">
-              <div class="dualChartTitle">Pre Delivery</div>
+
               <div id="approvedTotalsAll" class="grandTotals"></div>
             </div>
             <div class="chartWrap"><canvas id="approvedChart"></canvas></div>
-            <div id="approvedLegend" class="legend"><span><i style="background:var(--green)"></i>Pre Delivery</span></div>
+            <div id="approvedLegend" class="legend"></div>
           </div>
-          
+
         </div>
       </section>
 
@@ -390,7 +390,7 @@ body{
           <div class="panelTitleWrap">
             <h2 class="panelTitle"><span class="titleIcon ic-teal"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M17 7.5c0-1.9-2.2-3.5-5-3.5s-5 1.6-5 3.5 2.2 3.5 5 3.5 5 1.6 5 3.5-2.2 3.5-5 3.5-5-1.6-5-3.5"/></svg></span>Amount Claim</h2>
             <div class="approvedDateControls">
-              <span class="viewNote">Group by</span>
+
               <div class="miniSwitch" role="group" aria-label="Amount claim date basis">
                 <button id="amountApprovedOnBtn" class="miniBtn" type="button" aria-pressed="false" aria-describedby="amountDateNote">Approved On</button>
                 <button id="amountCreatedOnBtn" class="miniBtn active" type="button" aria-pressed="true" aria-describedby="amountDateNote">Created On</button>
@@ -398,40 +398,40 @@ body{
             </div>
             <div id="amountDateNote" class="approvedDateNote" aria-live="polite"></div>
           </div>
-          
+
           <button id="toggleAmountInFieldPending" type="button" aria-pressed="false" aria-controls="approvedAmountSplitChart" hidden>Show In Field Pending</button>
         </div>
         <div class="dualChartGrid">
           <div class="dualChartCard">
             <div class="dualChartHead">
-              <div class="dualChartTitle">Pre Delivery</div>
+
               <div id="amountTotalsAll" class="grandTotals"></div>
             </div>
             <div class="chartWrap chartWrapTall"><canvas id="approvedAmountChart"></canvas></div>
-            <div id="amountLegend" class="legend"><span><i style="background:var(--blue)"></i>Pre Delivery</span></div>
+            <div id="amountLegend" class="legend"></div>
           </div>
-          
+
         </div>
         <p id="amountPendingNote" class="pendingAmountNote" hidden></p>
       </section>
 
-      
+
 
       <section class="panel" id="claimclosed" hidden>
         <div class="panelHead">
           <h2 class="panelTitle"><span class="titleIcon ic-amber"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>Claims Closed by Month</h2>
-          
+
         </div>
         <div class="dualChartGrid">
           <div class="dualChartCard">
             <div class="dualChartHead">
-              <div class="dualChartTitle">Pre Delivery</div>
+
               <div id="claimClosedTotalsAll" class="grandTotals"></div>
             </div>
             <div class="chartWrap"><canvas id="claimClosedChart"></canvas></div>
-            <div id="claimClosedLegend" class="legend"><span><i style="background:var(--blue)"></i>Pre Delivery</span></div>
+            <div id="claimClosedLegend" class="legend"></div>
           </div>
-          
+
         </div>
       </section>
     </div>
@@ -704,6 +704,9 @@ function withCreatedAmountMonthly(monthly){
 }
 
 async function setAmountDateBasis(basis){
+  if(publishedTrendSnapshot&&["approved","created"].includes(basis)){
+    amountDateBasis=basis;syncAmountDateControls();renderWithPageLoading(false);return;
+  }
   if(basis==="created"&&amountDateBasis==="created"&&createdAmountsState.error){
     createdAmountsState={started:false,ready:false,error:false};renderWithPageLoading(false);return;
   }
@@ -1616,7 +1619,7 @@ function drawCompareBarChart(canvasId,rows,opts={}){
   const gap=Math.min(8,groupW*0.12);
   const barY=v=>top+plotH-plotH*(Number(v||0)/yMax);
   const showLabels=groupW>=42;
-  const fontSize=groupW>=58?11:10;
+  const fontSize=groupW>=58?13:12;
   const monthLabelY=h-38;
   const clampLabelY=v=>Math.max(18,Math.min(v,monthLabelY-18));
   rows.forEach((row,i)=>{
@@ -1659,13 +1662,13 @@ function drawCompareBarChart(canvasId,rows,opts={}){
         ctx.fillText(secondText,pairOverlap?secondCenter+3:secondCenter,secondLabelY);
       }
     }
-    ctx.fillStyle="#667085";
-    ctx.font="12px Segoe UI Variable,Aptos,Segoe UI,Arial";
+    ctx.fillStyle="#475569";
+    ctx.font="500 13px Segoe UI Variable,Aptos,Segoe UI,Arial";
     ctx.textAlign="center";
     ctx.fillText(row.label,center,h-38);
   });
   ctx.fillStyle="#475569";
-  ctx.font="500 12px Segoe UI Variable,Aptos,Segoe UI,Arial";
+  ctx.font="500 13px Segoe UI Variable,Aptos,Segoe UI,Arial";
   ctx.textAlign="center";
   ctx.fillText(`${rows[0]?.firstYear||""} vs ${rows[0]?.secondYear||""}`,left+plotW/2,h-14);
   finishChartRender(c);
@@ -1679,7 +1682,7 @@ function drawSplitCompareChart(canvasId,rows,opts={}){
   ctx.setTransform(dpr,0,0,dpr,0,0);
   ctx.clearRect(0,0,w,h);
   if(!rows.length){ctx.fillStyle="#64748b";ctx.textAlign="center";ctx.font="500 13px Segoe UI Variable,Aptos,Segoe UI,Arial";ctx.fillText("No monthly data found.",w/2,h/2);finishChartRender(c);return}
-  const left=18,right=18,top=20,bottom=78,plotW=w-left-right,plotH=h-top-bottom;
+  const left=28,right=28,top=20,bottom=78,plotW=w-left-right,plotH=h-top-bottom;
   const maxRaw=Math.max(10,...rows.flatMap(r=>[Number(r.firstIn||0),Number(r.secondIn||0),Number(r.firstPre||0),Number(r.secondPre||0)]));
   const yMax=typeof opts.yMax==="function"?opts.yMax(maxRaw):Math.ceil(maxRaw/100)*100;
   const formatter=opts.pointFormatter||num;
@@ -1706,18 +1709,18 @@ function drawSplitCompareChart(canvasId,rows,opts={}){
       ctx.fillRect(bar.x,yPos,barW,height);
       if(showLabels){
         ctx.fillStyle="#172033";
-        ctx.font="500 10px Segoe UI Variable,Aptos,Segoe UI,Arial";
+        ctx.font="500 12px Segoe UI Variable,Aptos,Segoe UI,Arial";
         ctx.textAlign="center";
         ctx.fillText(formatter(bar.value),bar.x+barW/2,Math.max(16,yPos-8));
       }
     });
-    ctx.fillStyle="#667085";
-    ctx.font="12px Segoe UI Variable,Aptos,Segoe UI,Arial";
+    ctx.fillStyle="#475569";
+    ctx.font="500 13px Segoe UI Variable,Aptos,Segoe UI,Arial";
     ctx.textAlign="center";
     ctx.fillText(row.label,center,h-40);
   });
   ctx.fillStyle="#475569";
-  ctx.font="500 12px Segoe UI Variable,Aptos,Segoe UI,Arial";
+  ctx.font="500 13px Segoe UI Variable,Aptos,Segoe UI,Arial";
   ctx.textAlign="center";
   ctx.fillText(`${rows[0]?.firstYear||""} vs ${rows[0]?.secondYear||""}`,left+plotW/2,h-14);
   finishChartRender(c);
@@ -1728,42 +1731,6 @@ let pendingState={started:false,rows:null,error:false,version:""};
 let showInFieldPending=false;
 let pendingAmountState={started:false,rows:null,error:false};
 let showAmountInFieldPending=false;
-function loadPendingTickets(){
-  if(pendingState.started)return pendingState.promise;
-  const state=pendingState;state.started=true;
-  return state.promise=(async()=>{
-    const path=`${ROOT}/automation/lastRunFinishedAt`;
-    const version=await readJson(path,4000);
-    if(!version)throw Error("Pending source version unavailable");
-    const tickets=await readJson(`${ROOT}/currentStatus`,30000);
-    const confirmed=await readJson(path,4000);
-    if(version!==confirmed)throw Error("Pending source changed; refresh to retry");
-    if(!tickets||typeof tickets!=="object")throw Error("Pending tickets unavailable");
-    const rows=ClaimTrendTicketMetrics.pendingMonthly(tickets);
-    if(pendingState!==state)return;
-    state.tickets=tickets;state.rows=rows;state.version=version;renderWithPageLoading(false);
-  })().catch(error=>{
-    if(pendingState!==state)return;
-    state.error=true;console.warn("Pending unavailable",error);renderWithPageLoading(false);
-  });
-}
-function loadPendingAmounts(){
-  if(pendingAmountState.started||!pendingState.tickets)return pendingAmountState.promise;
-  const state=pendingAmountState;state.started=true;
-  return state.promise=(async()=>{
-    const tickets=pendingState.tickets,version=pendingState.version;
-    const compactQuotes=arr(tickets).every(ticket=>Object.hasOwn(ticket,"quotedClaimAmount"));
-    const quotes=compactQuotes?tickets:await ensureRawTicketsLoaded();
-    const confirmed=await readJson(`${ROOT}/automation/lastRunFinishedAt`,4000);
-    if(version!==confirmed)throw Error("Pending source changed while loading amounts; refresh to retry");
-    const rows=ClaimTrendTicketMetrics.pendingAmountMonthly(tickets,quotes);
-    if(pendingAmountState!==state)return;
-    state.rows=rows;renderWithPageLoading(false);
-  })().catch(error=>{
-    if(pendingAmountState!==state)return;
-    state.error=true;console.warn("Pending amounts unavailable",error);renderWithPageLoading(false);
-  });
-}
 function drawSingleLineChart(canvasId,rows,key,opts={}){
   const c=$(canvasId);if(!c)return;
   const rect=c.getBoundingClientRect(),dpr=devicePixelRatio||1,w=Math.max(1,rect.width),h=Math.max(1,rect.height);
@@ -1772,7 +1739,7 @@ function drawSingleLineChart(canvasId,rows,key,opts={}){
   ctx.setTransform(dpr,0,0,dpr,0,0);
   ctx.clearRect(0,0,w,h);
   if(!rows.length){ctx.fillStyle="#64748b";ctx.textAlign="center";ctx.font="500 13px Segoe UI Variable,Aptos,Segoe UI,Arial";ctx.fillText("No monthly data found.",w/2,h/2);finishChartRender(c);return}
-  const left=18,right=18,top=20,bottom=84,plotW=w-left-right,plotH=h-top-bottom;
+  const left=28,right=28,top=20,bottom=84,plotW=w-left-right,plotH=h-top-bottom;
   const maxRaw=Math.max(10,...rows.flatMap(r=>[Number(r[key]||0),Number(r[opts.secondaryKey]||0)]));
   const yMax=typeof opts.yMax==="function"?opts.yMax(maxRaw):Math.ceil(maxRaw/100)*100;
   const pointFormatter=opts.pointFormatter||num;
@@ -1793,11 +1760,12 @@ function drawSingleLineChart(canvasId,rows,key,opts={}){
     ctx.arc(px,py,3.2,0,Math.PI*2);
     ctx.fill();
     let textY=py-10;
+    if(opts.secondaryKey&&r[opts.secondaryKey]!=null&&Math.abs(py-y(r[opts.secondaryKey]))<36)textY=Math.min(py,y(r[opts.secondaryKey]))-12;
     const monthLabelY=h-44;
     if(textY>monthLabelY-10)textY=py-12;
     textY=Math.max(16,Math.min(textY,monthLabelY-10));
     ctx.fillStyle="#172033";
-    ctx.font="500 11px Segoe UI Variable,Aptos,Segoe UI,Arial";
+    ctx.font="500 13px Segoe UI Variable,Aptos,Segoe UI,Arial";
     ctx.textAlign="center";
     ctx.fillText(pointFormatter(r[key]),px,textY);
   });
@@ -1810,17 +1778,18 @@ function drawSingleLineChart(canvasId,rows,key,opts={}){
       if(row[opts.secondaryKey]==null)return;
       const px=x(i),py=y(row[opts.secondaryKey]);
       ctx.fillStyle="#8b5cf6";ctx.beginPath();ctx.arc(px,py,3.2,0,Math.PI*2);ctx.fill();
-      ctx.font="500 11px Segoe UI Variable,Aptos,Segoe UI,Arial";ctx.textAlign="center";
-      const primaryLabelY=Math.max(16,Math.min(y(row[key])-10,h-54));
-      let labelY=py<y(row[key])?Math.max(16,py-10):Math.min(h-58,py+17);
-      if(Math.abs(labelY-primaryLabelY)<16)labelY=Math.min(h-58,Math.max(py,y(row[key]))+17);
+      ctx.font="500 13px Segoe UI Variable,Aptos,Segoe UI,Arial";ctx.textAlign="center";
+      const primaryY=y(row[key]),nearPrimary=row[key]!=null&&Math.abs(py-primaryY)<36;
+      const primaryLabelY=Math.max(16,Math.min(nearPrimary?Math.min(py,primaryY)-12:primaryY-10,h-54));
+      let labelY=nearPrimary?Math.min(h-58,Math.max(py,primaryY)+17):py<primaryY?Math.max(16,py-10):Math.min(h-58,py+17);
+      if(Math.abs(labelY-primaryLabelY)<18)labelY=Math.min(h-58,Math.max(py,y(row[key]))+17);
       ctx.fillText((opts.secondaryFormatter||pointFormatter)(row[opts.secondaryKey],row),px,labelY);
     });
   }
   ctx.strokeStyle="#d1d5db";
-  ctx.fillStyle="#667085";
+  ctx.fillStyle="#475569";
   ctx.textAlign="center";
-  ctx.font="12px Segoe UI Variable,Aptos,Segoe UI,Arial";
+  ctx.font="500 13px Segoe UI Variable,Aptos,Segoe UI,Arial";
   const step=Math.max(1,Math.ceil(rows.length/18));
   rows.forEach((r,i)=>{
     const px=x(i);
@@ -1828,7 +1797,7 @@ function drawSingleLineChart(canvasId,rows,key,opts={}){
     if(i===0||rows[i-1].year!==r.year){ctx.beginPath();ctx.moveTo(px,h-30);ctx.lineTo(px,h-16);ctx.stroke()}
   });
   ctx.beginPath();ctx.moveTo(w-right,h-30);ctx.lineTo(w-right,h-16);ctx.stroke();
-  ctx.font="500 12px Segoe UI Variable,Aptos,Segoe UI,Arial";
+  ctx.font="500 13px Segoe UI Variable,Aptos,Segoe UI,Arial";
   ctx.fillStyle="#475569";
   let start=0;
   while(start<rows.length){
@@ -1846,7 +1815,7 @@ function drawChart(canvasId,rows,inKey,preKey,opts={}){
   c.width=w*dpr;c.height=h*dpr;const ctx=c.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
   if(!rows.length){ctx.fillStyle="#64748b";ctx.textAlign="center";ctx.font="500 13px Segoe UI Variable,Aptos,Segoe UI,Arial";ctx.fillText("No monthly data found.",w/2,h/2);finishChartRender(c);return}
   const extras=opts.extraSeries||[];
-  const left=18,right=18,top=20,bottom=extras.length?110:84,plotW=w-left-right,plotH=h-top-bottom;
+  const left=28,right=28,top=20,bottom=extras.length?110:84,plotW=w-left-right,plotH=h-top-bottom;
   const maxRaw=Math.max(100,...rows.flatMap(r=>[Number(r[inKey]||0),Number(r[preKey]||0),...extras.map(s=>Number(r[s.key]||0))]));
   const yMax=typeof opts.yMax==="function"?opts.yMax(maxRaw):Math.ceil(maxRaw/100)*100;
   const pointFormatter=opts.pointFormatter||((v)=>String(Number(v||0)));
@@ -1867,7 +1836,7 @@ function drawChart(canvasId,rows,inKey,preKey,opts={}){
       if(textY>monthLabelY-10)textY=py-12;
       textY=Math.max(16,Math.min(textY,monthLabelY-10));
       ctx.fillStyle="#172033";
-      ctx.font="500 11px Segoe UI Variable,Aptos,Segoe UI,Arial";
+      ctx.font="500 13px Segoe UI Variable,Aptos,Segoe UI,Arial";
       ctx.textAlign="center";
       if(extras.length)labels[i].push({text:formatter(r[key],r),y:textY,color});
       else ctx.fillText(formatter(r[key],r),px,textY);
@@ -1883,7 +1852,7 @@ function drawChart(canvasId,rows,inKey,preKey,opts={}){
       const labelLeft=x(i)-halfWidth,labelRight=x(i)+halfWidth;
       // Check the whole text box against nearby line segments, not only other numbers.
       const overlaps=baseline=>{
-        const labelTop=baseline-10,labelBottom=baseline+3;
+        const labelTop=baseline-12,labelBottom=baseline+3;
         if(placedLabels.some(box=>labelLeft<box.right&&labelRight>box.left&&labelTop<box.bottom+3&&labelBottom>box.top-3))return true;
         return seriesKeys.some(key=>rows.some((row,j)=>{
           const next=Math.min(j+1,rows.length-1),x1=x(j),x2=x(next);
@@ -1901,12 +1870,12 @@ function drawChart(canvasId,rows,inKey,preKey,opts={}){
         const clear=candidates.find(baseline=>baseline>=16&&baseline<=h-54&&!overlaps(baseline));
         if(clear!==undefined){item.y=clear;break;}
       }
-      placedLabels.push({left:labelLeft,right:labelRight,top:item.y-10,bottom:item.y+3});
+      placedLabels.push({left:labelLeft,right:labelRight,top:item.y-12,bottom:item.y+3});
       ctx.fillStyle=item.color;ctx.fillText(item.text,x(i),item.y);
     });
   });
   // x labels + year separators
-  ctx.strokeStyle="#d1d5db";ctx.fillStyle="#667085";ctx.textAlign="center";ctx.font="12px Segoe UI Variable,Aptos,Segoe UI,Arial";
+  ctx.strokeStyle="#d1d5db";ctx.fillStyle="#475569";ctx.textAlign="center";ctx.font="500 13px Segoe UI Variable,Aptos,Segoe UI,Arial";
   const step=Math.max(1,Math.ceil(rows.length/18));
   rows.forEach((r,i)=>{
     const px=x(i);
@@ -1914,7 +1883,7 @@ function drawChart(canvasId,rows,inKey,preKey,opts={}){
     if(i===0||rows[i-1].year!==r.year){ctx.beginPath();ctx.moveTo(px,h-30);ctx.lineTo(px,h-16);ctx.stroke()}
   });
   ctx.beginPath();ctx.moveTo(w-right,h-30);ctx.lineTo(w-right,h-16);ctx.stroke();
-  ctx.font="500 12px Segoe UI Variable,Aptos,Segoe UI,Arial";ctx.fillStyle="#475569";
+  ctx.font="500 13px Segoe UI Variable,Aptos,Segoe UI,Arial";ctx.fillStyle="#475569";
   let s=0;while(s<rows.length){let e=s;while(e+1<rows.length&&rows[e+1].year===rows[s].year)e++;ctx.fillText(rows[s].year,(x(s)+x(e))/2,h-4);s=e+1}
   finishChartRender(c);
 }
@@ -2031,99 +2000,99 @@ function render(){
   drawChart("approvedAmountSplitChart",rows,amountInKey,amountPreKey,{yMax:niceCurrencyMax,pointFormatter:moneyK});
   drawChart("claimClosedSplitChart",claimClosedSplit,"inValue","preValue");
   setLegend("newClaimLegend",[
-    {label:"Pre Delivery",color:"#156082"}
+    {label:"",color:"#156082"}
   ]);
   setLegend("approvedLegend",[
-    {label:"Pre Delivery",color:"#16a34a"}
+    {label:"",color:"#16a34a"}
   ]);
   setLegend("amountLegend",[
-    {label:"Pre Delivery",color:"#0f766e"}
+    {label:"",color:"#0f766e"}
   ]);
   setLegend("unapprovedLegend",[
-    {label:"Pre Delivery",color:"#d9485f"}
+    {label:"",color:"#d9485f"}
   ]);
   setLegend("claimClosedLegend",[
-    {label:"Pre Delivery",color:"#156082"}
+    {label:"",color:"#156082"}
   ]);
   setLegend("newClaimSplitLegend",[
     {label:"In Field",color:"#156082"},
-    {label:"Pre Delivery",color:"#e97132"}
+    {label:"",color:"#e97132"}
   ]);
   setLegend("approvedSplitLegend",[
     {label:"In Field",color:"#156082"},
-    {label:"Pre Delivery",color:"#e97132"}
+    {label:"",color:"#e97132"}
   ]);
   setLegend("amountSplitLegend",[
     {label:"In Field",color:"#156082"},
-    {label:"Pre Delivery",color:"#e97132"}
+    {label:"",color:"#e97132"}
   ]);
   setLegend("unapprovedSplitLegend",[
     {label:"In Field",color:"#156082"},
-    {label:"Pre Delivery",color:"#e97132"}
+    {label:"",color:"#e97132"}
   ]);
   setLegend("claimClosedSplitLegend",[
     {label:"In Field",color:"#156082"},
-    {label:"Pre Delivery",color:"#e97132"}
+    {label:"",color:"#e97132"}
   ]);
   setTotals("newClaimTotals",[
     {label:"All",value:num(sumValueRows(newClaimRows))},
     {label:"In Field",value:num(sumMetricRows(rows,"createdIn"))},
-    {label:"Pre Delivery",value:num(sumMetricRows(rows,"createdPre"))}
+    {label:"",value:num(sumMetricRows(rows,"createdPre"))}
   ]);
   setTotals("approvedTotals",[
     {label:"All",value:num(sumValueRows(approvedRows))},
     {label:"In Field",value:num(approved.inField)},
-    {label:"Pre Delivery",value:num(approved.preDelivery)}
+    {label:"",value:num(approved.preDelivery)}
   ]);
   setTotals("amountTotals",[
     {label:"All",value:moneyNum(sumValueRows(amountRows))},
     {label:"In Field",value:moneyNum(amount.inField)},
-    {label:"Pre Delivery",value:moneyNum(amount.preDelivery)}
+    {label:"",value:moneyNum(amount.preDelivery)}
   ]);
   setTotals("unapprovedTotals",[
     {label:"All",value:num(sumValueRows(unapprovedRows))},
     {label:"In Field",value:num(unapproved.inField)},
-    {label:"Pre Delivery",value:num(unapproved.preDelivery)}
+    {label:"",value:num(unapproved.preDelivery)}
   ]);
   setTotals("claimClosedTotals",[
     {label:"All",value:num(sumValueRows(claimClosedRows))},
     {label:"In Field",value:num(sumMetricRows(claimClosedSplit,"inValue"))},
-    {label:"Pre Delivery",value:num(sumMetricRows(claimClosedSplit,"preValue"))}
+    {label:"",value:num(sumMetricRows(claimClosedSplit,"preValue"))}
   ]);
   setTotals("newClaimTotalsAll",[
-    {label:"Pre Delivery",value:num(sumValueRows(newClaimRows))}
+    {label:"",value:num(sumValueRows(newClaimRows))}
   ]);
   setTotals("approvedTotalsAll",[
-    {label:"Pre Delivery",value:num(sumValueRows(approvedRows))}
+    {label:"",value:num(sumValueRows(approvedRows))}
   ]);
   setTotals("amountTotalsAll",[
-    {label:"Pre Delivery",value:moneyNum(sumValueRows(amountRows))}
+    {label:"",value:moneyNum(sumValueRows(amountRows))}
   ]);
   setTotals("unapprovedTotalsAll",[
-    {label:"Pre Delivery",value:num(sumValueRows(unapprovedRows))}
+    {label:"",value:num(sumValueRows(unapprovedRows))}
   ]);
   setTotals("claimClosedTotalsAll",[
-    {label:"Pre Delivery",value:num(sumValueRows(claimClosedRows))}
+    {label:"",value:num(sumValueRows(claimClosedRows))}
   ]);
   setTotals("newClaimTotalsSplit",[
     {label:"In Field",value:num(sumMetricRows(rows,"createdIn"))},
-    {label:"Pre Delivery",value:num(sumMetricRows(rows,"createdPre"))}
+    {label:"",value:num(sumMetricRows(rows,"createdPre"))}
   ]);
   setTotals("approvedTotalsSplit",[
     {label:"In Field",value:num(approved.inField)},
-    {label:"Pre Delivery",value:num(approved.preDelivery)}
+    {label:"",value:num(approved.preDelivery)}
   ]);
   setTotals("amountTotalsSplit",[
     {label:"In Field",value:moneyNum(amount.inField)},
-    {label:"Pre Delivery",value:moneyNum(amount.preDelivery)}
+    {label:"",value:moneyNum(amount.preDelivery)}
   ]);
   setTotals("unapprovedTotalsSplit",[
     {label:"In Field",value:num(unapproved.inField)},
-    {label:"Pre Delivery",value:num(unapproved.preDelivery)}
+    {label:"",value:num(unapproved.preDelivery)}
   ]);
   setTotals("claimClosedTotalsSplit",[
     {label:"In Field",value:num(sumMetricRows(claimClosedSplit,"inValue"))},
-    {label:"Pre Delivery",value:num(sumMetricRows(claimClosedSplit,"preValue"))}
+    {label:"",value:num(sumMetricRows(claimClosedSplit,"preValue"))}
   ]);
   renderPendingApproved(approvedRows);
   renderPendingAmounts(amountRows);
@@ -2362,43 +2331,8 @@ async function fetchClaimStartup(url){
   if(!validClaimStartup(snapshot))throw Error("Claim summary is unavailable");
   return snapshot;
 }
-async function loadClaimStartup(){
-  let shown=null;
-  const cache=window.WarrantyPageCache;
-  const apply=snapshot=>{
-    if(!validClaimStartup(snapshot)||shown&&snapshot.sourceVersion<=shown.sourceVersion)return;
-    const first=!shown;
-    resetPdvTrendSources();
-    claimMonthlyReady=true;
-    if(first)init({},true,snapshot.closedIndex,snapshot.monthly);
-    else{
-      MONTHLY=snapshot.monthly;
-      MONTHS_INDEX=Object.fromEntries(MONTHLY.map(row=>[row.month,row]));
-      CLAIM_CLOSED_INDEX=snapshot.closedIndex||{};
-      // Amounts grouped by creation date are loaded separately on demand.
-      amountTicketRows=null;amountTicketsById=new Map();
-      RAW_TICKETS=[];rawTicketsLoaded=false;claimSourceVersionsPromise=null;
-      syncAmountDateControls();renderWithPageLoading(false);
-    }
-    shown=snapshot;
-    cache?.showBadge(snapshot.generatedAt,"checking");
-    if(first)finishInitialScroll();
-  };
-  const versionPromise=readClaimStartupVersion();
-  await Promise.all([
-    Promise.resolve(cache?.getPageRecord?.(CLAIM_STARTUP_CACHE_KEY)).then(record=>record?.value),
-    fetchClaimStartup(`${FIREBASE}/${ROOT}/analytics/claimTrendStartup.json`)
-  ].map(p=>Promise.resolve(p).then(apply).catch(error=>console.warn("Claim summary unavailable",error))));
-  const version=await versionPromise;
-  if(shown){
-    const current=version===shown.sourceVersion;
-    cache?.showBadge(shown.generatedAt,current?"fresh":version?"pending":"offline");
-    if(current)void cache?.setPage(CLAIM_STARTUP_CACHE_KEY,version,shown);
-  }else{
-    showError("Claim trend summary is not available yet. Please refresh after the data update completes.");
-    showPageLoading(false);
-  }
-}
+async function loadClaimStartup(){return loadPublishedTrend();}
+
 loadClaimStartup();
 
 </script>

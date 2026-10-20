@@ -91,8 +91,8 @@ body>.app{display:block!important;min-height:calc(100vh - 62px)!important}.app>.
   .pdv-trend-page .panelHead{margin-bottom:6px!important;min-height:58px!important;align-items:flex-start!important}
   .pdv-trend-page .panelTitleWrap{flex-direction:column!important;align-items:flex-start!important}
   .pdv-trend-page .miniBtn{padding:4px 7px!important;font-size:11px!important}
-  .pdv-trend-page .dualChartHead{min-height:23px!important;margin-bottom:4px!important}
-  .pdv-trend-page .totalChip strong{font-size:17px!important}
+  .pdv-trend-page .dualChartHead{min-height:23px!important;margin-bottom:4px!important;justify-content:flex-end!important}
+  .pdv-trend-page .totalChip strong{font-size:19px!important}
   .pdv-trend-page .legend{margin-top:3px!important;min-height:14px}
   @media(min-width:1001px) and (min-height:650px){
     .pdv-trend-page .main{padding:12px 20px 28px!important;height:calc(100dvh - 48px);display:grid;grid-template-rows:auto minmax(185px,.85fr) auto minmax(260px,1fr);gap:9px;align-content:stretch}
@@ -213,6 +213,10 @@ body .site-nav .site-controls select{max-width:155px}
 body>.overview-main{padding-top:12px}
 body>.app{min-height:calc(100dvh - var(--site-header-height,54px))!important}
 @layer claimOverview{
+  .pdv-trend-page .dualChartTitle{font-size:13px!important;color:#475569!important}
+  .pdv-trend-page .totalChip{font-size:12px!important;color:#58667a!important;font-weight:500!important}
+  .pdv-trend-page .legend{font-size:12px!important;color:#526278!important}
+  .pdv-trend-page :is(#approvedLegend,#amountLegend) i{width:12px!important;height:12px!important;border-radius:0!important}
   .pdv-trend-page .site-nav .toolbar{padding:0!important;margin:0!important;gap:6px 9px!important;box-shadow:none!important;border:0!important;background:transparent!important;border-radius:0!important}
   .pdv-trend-page .site-nav .pageTitle{font-size:18px!important}
   .pdv-trend-page .site-nav .modeCluster{margin:0!important;gap:8px!important;width:auto!important}

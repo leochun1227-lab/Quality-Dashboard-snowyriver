@@ -8,7 +8,7 @@ ROOT=Path(__file__).resolve().parent
 BATCH='run_daily_5pm_mandt800_rejection_filter.bat'
 BEGIN='rem BEGIN OZZ PDV DASHBOARD'
 END='rem END OZZ PDV DASHBOARD'
-FILES=('refresh.py','pdv_scope.py','claim_trend_page.py')
+FILES=('refresh.py','pdv_scope.py','claim_trend_page.py','claim_trend_snapshot.py')
 HOOK='''rem BEGIN OZZ PDV DASHBOARD
 rem Run only after the existing warranty refresh and publication checks succeed.
 if "%ERR%"=="0" (
@@ -24,7 +24,7 @@ if not exist "%~dp0pdv_dashboard\refresh.py" (
   echo ERROR: PDV updater missing: "%~dp0pdv_dashboard\refresh.py"
   exit /b 1
 )
-for %%F in (pdv_scope.py claim_trend_page.py) do (
+for %%F in (pdv_scope.py claim_trend_page.py claim_trend_snapshot.py) do (
   if not exist "%~dp0pdv_dashboard\%%F" (
     echo ERROR: PDV companion file missing: "%~dp0pdv_dashboard\%%F"
     exit /b 1

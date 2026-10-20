@@ -16,7 +16,7 @@ Its charts and exports remain Pre Delivery only and have no 9 September creation
 The publisher builds the Claim cohort from Firebase currentStatus, joins Issue records by
 Ticket ID, and filters approved amount records to the same cohort before aggregation.
 Approval-date grouping remains available within that cohort; it never brings in older-created Claims.
-Overview and the scoped PDV Claim snapshot are reconciled before publication; the historical Claim Trend page reads the original Warranty snapshot instead. The scoped PDV publication retains immutable Claim and amount details. Historical Claim Trend loads Warranty ticket and amount details on demand for date-basis changes and exports.
+Overview and the scoped PDV Claim snapshot are reconciled before publication. Historical Claim Trend uses a separate daily result built from Warranty's historical summary, current statuses and SAP amount rows. The scoped PDV publication retains immutable Claim and amount details. Historical Claim Trend loads ticket details only for exports; its charts and date-basis switches read the daily result.
 
 The web pages read Firebase directly. They do not load local CSV or generated JSON files.
 `python refresh.py` reads the existing warranty publications and publishes small, validated,
@@ -71,18 +71,27 @@ Count buttons open optional Claim details; all three classification totals use t
 Approval uses Firebase currentStatus: the existing Warranty statuses plus a nonblank Claim Approved On.
 Missing status records are explicitly excluded and counted. The source timestamps are shown under
 Data & definitions. Claim Trend restricts its charts, totals and exports
-to Pre Delivery. It reads Warranty's historical Firebase claim summary and retains its date-basis controls.
+to Pre Delivery. It reads the published historical daily result and retains its date-basis controls.
 All three pages place their title, filters and actions above the content, beside the shared left sidebar.
 Claim Trend restores the Warranty Trend / Year Compare controls, with Approved On / Created On grouping.
-Approved Tickets and Amount Claim default to Created On. Approved amounts are loaded and regrouped
-by their original creation month before rendering; missing/loading amounts are not displayed as zero.
-Both charts include current Pending Pre Delivery Claims by Created On (purple dashed lines).
+Approved Tickets and Amount Claim default to Created On. The daily publisher groups approved amounts
+by their original creation month; missing/loading amounts are not displayed as zero.
+Both charts show paired monthly bars: Approved in blue and current Pending Pre Delivery Claims
+by Created On in orange. Year Compare shows an Approved/Pending pair for each year using lighter
+colors for the second year. Tickets Created retains its existing chart.
 Pending excludes approved, resolved, closed, rejected and cancelled tickets; this is the current
 open population grouped by creation month, not historical month-end backlog. Pending quotes use
 the same Claim Amount fields and status rules as Warranty, and identify missing quotes separately
 from real zero values. Approved amounts retain their SAP source. Year Compare shows Pending for
-each year, and Excel exports include a separate Pending Monthly sheet. The page reads the daily
-Warranty currentStatus feed and validates its update version when loading Pending and quotes.
+each year, and Excel exports include a separate Pending Monthly sheet.
+`claim_trend_snapshot.py` builds all chart series during the existing daily update. It reads Pending
+counts and quotes from the same completed status generation and includes both approved amount date bases.
+The complete result is stored under `pdvDashboard/historicalGenerations/<generation>` before
+`pdvDashboard/historicalClaimTrendStartup` is advanced. Source versions are checked again before publication;
+a failed build retains the prior result. `python refresh.py --publish-only --dry-run` validates without publishing.
+Page visits and date-basis switches never fetch the status feed or recalculate amounts. The browser may
+reuse the exact prior published result while checking its small generation key. If a new daily generation
+exists, the page replaces all chart sources together. Offline visits show the saved daily result with a label.
 `claim-trend-pdv.js` adapts the Warranty renderers to the Pre Delivery-only view on page rebuilds.
 Its three charts show Tickets Created, Approved Tickets and Amount Claim. Unapproved Tickets remains excluded.
 The cutoff-only monthly Issue summary is not loaded on this historical page.
