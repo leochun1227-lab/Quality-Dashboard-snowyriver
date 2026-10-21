@@ -132,9 +132,9 @@ function drawPendingBarChart(canvasId,rows,series,opts={}){
   const lower=min<0?-Math.abs(opts.yMax?opts.yMax(-min):Math.ceil(-min/100)*100):0;
   const left=28,top=44,bottom=68,plotW=w-left*2,plotH=Math.max(1,h-top-bottom);
   const y=value=>top+plotH*(upper-Number(value))/(upper-lower),baseline=y(0);
-  const groupW=plotW/rows.length,gap=Math.min(8,groupW*.08);
+  const groupW=plotW/rows.length,gap=0;
   const slots=[...new Set(series.map(item=>item.stack||item.key))];
-  const barW=Math.min(24,(groupW*.76-gap*(slots.length-1))/slots.length);
+  const barW=Math.min(32,(groupW*.76-gap*(slots.length-1))/slots.length);
   const clusterW=barW*slots.length+gap*(slots.length-1),labels=[];
   rows.forEach((row,i)=>{
     const center=left+groupW*(i+.5);

@@ -145,7 +145,7 @@ test('monthly bars share a scale, preserve zero, and omit unknown or future valu
   assert.equal(bars.length,3);
   assert.equal(bars[0].h,2*bars[1].h);
   assert.equal(bars[0].y+bars[0].h,bars[1].y+bars[1].h);
-  assert.ok(bars[0].x+bars[0].w<bars[1].x);
+  assert.equal(bars[0].x+bars[0].w,bars[1].x);
   assert.equal(bars[2].h,0);
   assert.deepEqual(labels.filter(item=>['100','50','0'].includes(item.text)).map(item=>item.text),['100','50','0']);
   assert.equal(canvas.width,2000);
