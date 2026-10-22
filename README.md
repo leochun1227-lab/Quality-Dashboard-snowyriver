@@ -74,10 +74,10 @@ Data & definitions. Claim Trend restricts its charts, totals and exports
 to Pre Delivery. It reads the published historical daily result and retains its date-basis controls.
 All three pages place their title, filters and actions above the content, beside the shared left sidebar.
 Claim Trend retains Trend / Year Compare. Its first two charts are Monthly Claims and Monthly
-Issues / Defects, always grouped by the parent Claim's Created On. Each month has a light blue Total
-bar beside a stacked bar: Approved in dark blue and Pending in orange. Total includes other statuses
+Issues / Defects, always grouped by the parent Claim's Created On. A light blue Total line
+shares the scale with stacked bars: Approved in dark blue and Pending in orange. Total includes other statuses
 such as rejected/cancelled, so Approved + Pending need not equal Total. Year Compare repeats the
-pair for each year and does not turn future months into zeros. Amount Claim remains third,
+stack for each year, uses solid/dashed Total lines, and does not turn future months into zeros. Amount Claim remains third,
 defaults to Created On, and retains its Approved On / Created On controls.
 Pending excludes approved, resolved, closed, rejected and cancelled tickets; this is the current
 open population grouped by creation month, not historical month-end backlog. Pending quotes use

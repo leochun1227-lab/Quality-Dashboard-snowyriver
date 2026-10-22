@@ -105,7 +105,7 @@ function pendingDescription(){
   return 'Pre Delivery only. Current open Claims awaiting approval, grouped by Created On; approved, closed, rejected and cancelled Claims are excluded. This is not a historical month-end balance.';
 }
 function showPendingLegend(id,items){
-  $(id).innerHTML=items.map(item=>`<span><i style="background:${item.color};width:12px;height:12px;border-radius:0"></i>${item.label}</span>`).join('');
+  $(id).innerHTML=items.map(item=>`<span><i style="${item.type==='line'?`background:none;border-top:3px ${item.dashed?'dashed':'solid'} ${item.color};width:20px;height:0`:`background:${item.color};width:12px;height:12px`};border-radius:0"></i>${item.label}</span>`).join('');
   $(id).setAttribute('style','visibility:visible!important;display:flex!important');
   $(id).title=pendingDescription().replace("Pre Delivery only. ", "");
 }
@@ -133,29 +133,52 @@ function drawPendingBarChart(canvasId,rows,series,opts={}){
   const left=28,top=44,bottom=68,plotW=w-left*2,plotH=Math.max(1,h-top-bottom);
   const y=value=>top+plotH*(upper-Number(value))/(upper-lower),baseline=y(0);
   const groupW=plotW/rows.length,gap=0;
-  const slots=[...new Set(series.map(item=>item.stack||item.key))];
+  const barSeries=series.filter(item=>item.type!=='line');
+  const slots=[...new Set(barSeries.map(item=>item.stack||item.key))];
   const barW=Math.min(32,(groupW*.76-gap*(slots.length-1))/slots.length);
   const clusterW=barW*slots.length+gap*(slots.length-1),labels=[];
   rows.forEach((row,i)=>{
     const center=left+groupW*(i+.5);
-    series.forEach(item=>{
+    barSeries.forEach(item=>{
       const value=row[item.key];if(!valid(value))return;
       const index=slots.indexOf(item.stack||item.key),base=item.baseKey?Number(row[item.baseKey]||0):0;
       const x=center-clusterW/2+index*(barW+gap),valueY=y(Number(value)+base),baseY=y(base);
       ctx.fillStyle=item.color;
       ctx.fillRect(x,Math.min(baseY,valueY),barW,Math.abs(baseY-valueY));
       const formatter=item.formatter||opts.pointFormatter||num;
-      const inside=item.inside&&Math.abs(baseY-valueY)>=14&&ctx.measureText(formatter(value,row)).width<barW-2;
+      const text=formatter(value,row),textWidth=ctx.measureText(text).width;
+      const inside=item.inside&&Math.abs(baseY-valueY)>=14&&textWidth<barW-2;
       const stackTop=item.stack?y(series.filter(other=>other.stack===item.stack).reduce((sum,other)=>sum+Number(row[other.key]||0),0)):Math.min(baseY,valueY);
-      labels.push({text:formatter(value,row),x:x+barW/2,
-        y:inside?(baseY+valueY)/2+4:stackTop-9-(item.baseKey?16:0),color:inside?'#fff':item.stack?item.color:'#172033'});
+      const outsideRight=item.baseKey&&!inside;
+      labels.push({text,outsideRight,x:outsideRight?x+barW+6+textWidth/2:x+barW/2,
+        y:inside?(baseY+valueY)/2+4:outsideRight?stackTop+8:stackTop-9,color:inside?'#fff':item.stack?item.color:'#172033'});
     });
     if(opts.groupLabels){
       ctx.fillStyle='#475569';ctx.font='500 10px Segoe UI,Arial';
-      opts.groupLabels.forEach((label,index)=>ctx.fillText(label,center-clusterW/2+(index*2+.5)*(barW+gap)+barW/2,baseline+14));
+      const slotsPerGroup=slots.length/opts.groupLabels.length;
+      opts.groupLabels.forEach((label,index)=>ctx.fillText(label,center-clusterW/2+(index+.5)*slotsPerGroup*(barW+gap)-gap/2,baseline+14));
       ctx.font='500 13px Segoe UI Variable,Aptos,Segoe UI,Arial';
     }
     ctx.fillStyle='#475569';ctx.fillText(row.label||monthShort(row.month),center,h-36);
+  });
+  // Total shares the count scale with the stacked columns. Missing/future
+  // months break the line rather than joining through fabricated zeroes.
+  series.filter(item=>item.type==='line').forEach(item=>{
+    const index=slots.indexOf(item.alignStack),offset=index<0?0:-clusterW/2+index*(barW+gap)+barW/2;
+    const x=i=>left+groupW*(i+.5)+offset;
+    ctx.beginPath();ctx.strokeStyle=item.color;ctx.lineWidth=2.5;ctx.setLineDash(item.dashed?[6,4]:[]);
+    let connected=false;
+    rows.forEach((row,i)=>{
+      if(!valid(row[item.key])){connected=false;return;}
+      if(connected)ctx.lineTo(x(i),y(row[item.key]));else ctx.moveTo(x(i),y(row[item.key]));
+      connected=true;
+    });
+    ctx.stroke();ctx.setLineDash([]);
+    rows.forEach((row,i)=>{
+      const value=row[item.key];if(!valid(value))return;
+      ctx.beginPath();ctx.fillStyle=item.color;ctx.arc(x(i),y(value),3,0,Math.PI*2);ctx.fill();
+      labels.unshift({text:(item.formatter||opts.pointFormatter||num)(value,row),x:x(i),y:y(value)-11,color:'#172033'});
+    });
   });
   // Keep the larger numbers readable when adjacent bars have similar values.
   const placed=[];ctx.fillStyle='#172033';
@@ -165,6 +188,7 @@ function drawPendingBarChart(canvasId,rows,series,opts={}){
     let textY=label.y;
     const overlaps=()=>placed.some(box=>x-half<box.right+3&&x+half>box.left-3&&textY-13<box.bottom+3&&textY>box.top-3);
     while(overlaps()&&textY>30)textY-=16;
+    if(label.outsideRight){ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.lineJoin='round';ctx.strokeText(label.text,x,textY);}
     ctx.fillStyle=label.color;ctx.fillText(label.text,x,textY);
     placed.push({left:x-half,right:x+half,top:textY-13,bottom:textY});
   });
@@ -252,7 +276,7 @@ function cohortPoint(month,metric){
   return {total:value('total'),approved:value('approved'),pending:value('pending')};
 }
 function cohortSeries(suffix=''){
-  return [{key:'total'+suffix,color:'#62a9c8'},
+  return [{key:'total'+suffix,color:'#62a9c8',type:'line',alignStack:'status'+suffix,dashed:suffix==='B'},
     {key:'approved'+suffix,color:'#156082',stack:'status'+suffix,inside:true},
     {key:'pending'+suffix,color:'#e97132',stack:'status'+suffix,baseKey:'approved'+suffix,inside:true}];
 }
@@ -272,7 +296,10 @@ function renderCohortChart(metric,canvas,legend,totals){
   setTotals(totals,groups.flatMap(([year,suffix])=>['total','approved','pending'].map(key=>({
     label:`${key==='total'?'Total':key==='approved'?'Approved':'Pending'}${year?' '+year:''}`,
     value:rows.some(r=>r[key+suffix]!==null)?num(sumValueRows(rows,key+suffix)):'—'}))));
-  showPendingLegend(legend,[{label:'Total',color:'#62a9c8'},{label:'Approved',color:'#156082'},{label:'Pending',color:'#e97132'}]);
+  showPendingLegend(legend,[...(comparison?[
+    {label:`Total ${compareYearA}`,color:'#62a9c8',type:'line'},
+    {label:`Total ${compareYearB}`,color:'#62a9c8',type:'line',dashed:true}]:[{label:'Total',color:'#62a9c8',type:'line'}]),
+    {label:'Approved',color:'#156082'},{label:'Pending',color:'#e97132'}]);
   $(legend).title='Grouped by Claim Created On. Total includes all statuses; Approved and Pending are distinct subsets. Rejected, cancelled and other statuses remain in Total.';
   const describe=(row,suffix='')=>`Total ${row['total'+suffix]??'unavailable'}, Approved ${row['approved'+suffix]??'unavailable'}, Pending ${row['pending'+suffix]??'unavailable'}`;
   $(canvas).setAttribute('role','img');

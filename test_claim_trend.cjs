@@ -151,17 +151,21 @@ test('monthly bars share a scale, preserve zero, and omit unknown or future valu
   assert.equal(canvas.width,2000);
 });
 
-test('Approved and Pending stack in the same column beside Total, using the combined scale',()=>{
-  const a=app(),bars=[];
-  const ctx={setTransform(){},clearRect(){},fillRect(x,y,w,h){bars.push({x,y,w,h});},fillText(){},measureText(){return {width:15};}};
+test('Total is a line on the stacked Approved/Pending scale and breaks at unknown months',()=>{
+  const a=app(),bars=[],points=[],segments=[];
+  const ctx={setTransform(){},clearRect(){},fillRect(x,y,w,h){bars.push({x,y,w,h});},fillText(){},measureText(){return {width:15};},
+    beginPath(){},moveTo(x,y){segments.push(['move',x,y]);},lineTo(x,y){segments.push(['line',x,y]);},stroke(){},setLineDash(){},arc(x,y){points.push({x,y});},fill(){}};
   a.context.document.getElementById=()=>({getBoundingClientRect:()=>({width:1000,height:265}),getContext:()=>ctx});
   a.context.devicePixelRatio=1;a.run('finishChartRender=()=>{}');
-  a.run("drawPendingBarChart('chart',[{month:'2026-01',total:150,approved:100,pending:50}],cohortSeries())");
-  assert.equal(bars.length,3);
-  assert.ok(bars[0].x<bars[1].x);
-  assert.equal(bars[1].x,bars[2].x);
-  assert.ok(Math.abs(bars[0].h-bars[1].h-bars[2].h)<.001);
-  assert.ok(Math.abs(bars[2].y+bars[2].h-bars[1].y)<.001);
+  a.run("drawPendingBarChart('chart',[{month:'2026-01',total:150,approved:100,pending:50},{month:'2026-02',total:null},{month:'2026-03',total:0},{month:'2026-04',total:80}],cohortSeries())");
+  assert.equal(bars.length,2);
+  assert.equal(bars[0].x,bars[1].x);
+  assert.ok(Math.abs(bars[0].h-2*bars[1].h)<.001);
+  assert.ok(Math.abs(bars[1].y+bars[1].h-bars[0].y)<.001);
+  assert.equal(points[0].x,bars[0].x+bars[0].w/2);
+  assert.equal(points[0].y,bars[1].y);
+  assert.equal(points.length,3);
+  assert.deepEqual(segments.map(s=>s[0]),['move','move','line']);
 });
 
 test('Issue cohorts distinguish unavailable from zero and omit future comparison months',()=>{
